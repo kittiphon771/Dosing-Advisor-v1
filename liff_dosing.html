@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ระบบแยก Dosing Top/Bot</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #F0F4F8;
+    min-height: 100vh;
+    padding-bottom: 100px;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #1a6b3c 0%, #2d9e5f 100%);
+    color: white;
+    padding: 16px 20px 20px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .header .sub {
+    font-size: 11px;
+    opacity: 0.8;
+    margin-top: 3px;
+  }
+  .liff-id-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    margin-top: 5px;
+  }
+
+  .content { padding: 16px; }
+
+  .card {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  .card-header {
+    background: #EBF5F0;
+    border-left: 4px solid #2d9e5f;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a6b3c;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card-header.blue {
+    background: #EBF2FA;
+    border-left-color: #2563EB;
+    color: #1D4ED8;
+  }
+  .card-header.amber {
+    background: #FEF9EC;
+    border-left-color: #D97706;
+    color: #92400E;
+  }
+
+  .card-body { padding: 14px; }
+
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+  }
+  label .range {
+    font-weight: 400;
+    color: #9CA3AF;
+    font-size: 11px;
+  }
+  label .target {
+    font-size: 10px;
+    color: #6B7280;
+    font-weight: 400;
+  }
+
+  input[type="number"] {
+    border: 1.5px solid #D1D5DB;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 16px;
+    color: #111827;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+    -webkit-appearance: none;
+  }
+  input[type="number"]:focus {
+    border-color: #2d9e5f;
+    box-shadow: 0 0 0 3px rgba(45,158,95,0.1);
+  }
+  input[type="number"].blue:focus {
+    border-color: #2563EB;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  }
+  input[type="number"].amber:focus {
+    border-color: #D97706;
+    box-shadow: 0 0 0 3px rgba(217,119,6,0.1);
+  }
+  input.error { border-color: #EF4444; }
+
+  .status-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .status-pill {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .status-pill .val {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a6b3c;
+    font-variant-numeric: tabular-nums;
+  }
+  .status-pill .lbl {
+    font-size: 10px;
+    color: #6B7280;
+    margin-top: 2px;
+  }
+
+  .submit-wrap {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    padding: 12px 16px;
+    background: white;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  }
+
+  button#submitBtn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #16A34A, #2d9e5f);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: opacity 0.2s;
+  }
+  button#submitBtn:active { opacity: 0.85; }
+  button#submitBtn:disabled {
+    background: #9CA3AF;
+    cursor: not-allowed;
+  }
+
+  .hint {
+    font-size: 11px;
+    color: #9CA3AF;
+    margin-top: 4px;
+  }
+
+  .err-msg {
+    font-size: 11px;
+    color: #EF4444;
+    margin-top: 4px;
+    display: none;
+  }
+
+  #loadingOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    flex-direction: column;
+    gap: 12px;
+    color: white;
+    font-size: 14px;
+  }
+  #loadingOverlay.show { display: flex; }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <span id="loadingMsg">กำลังส่งข้อมูล...</span>
+</div>
+
+<div class="header">
+  <h1>📊 ระบบแยก Dosing Top/Bot</h1>
+  <div class="sub">วิเคราะห์การปรับ Sizing Chemical อัตโนมัติ</div>
+  <div class="liff-id-badge" id="liffIdBadge">กำลังโหลด LIFF...</div>
+</div>
+
+<div class="content">
+
+  <!-- Live Kg/ton preview -->
+  <div class="status-bar">
+    <div class="status-pill">
+      <div class="val" id="prevKgTop">—</div>
+      <div class="lbl">Kg/ton Top</div>
+    </div>
+    <div class="status-pill">
+      <div class="val" id="prevKgBot">—</div>
+      <div class="lbl">Kg/ton Bot</div>
+    </div>
+    <div class="status-pill">
+      <div class="val" id="prevCratio">—</div>
+      <div class="lbl">Top/Bot Ratio</div>
+    </div>
+  </div>
+
+  <!-- COBB -->
+  <div class="card">
+    <div class="card-header">🧪 ค่า Cobb ที่วัดได้</div>
+    <div class="card-body">
+      <div class="row-2">
+        <div class="field">
+          <label>Cobb Top <span class="range">(45–60)</span><br><span class="target">Target: 52</span></label>
+          <input type="number" id="cobbTop" inputmode="decimal" placeholder="เช่น 55" class="">
+          <span class="err-msg" id="errCobbTop">กรุณากรอกค่า 10–200</span>
+        </div>
+        <div class="field">
+          <label>Cobb Bot <span class="range">(95–120)</span><br><span class="target">Target: 107</span></label>
+          <input type="number" id="cobbBot" inputmode="decimal" placeholder="เช่น 110" class="">
+          <span class="err-msg" id="errCobbBot">กรุณากรอกค่า 10–300</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOW -->
+  <div class="card">
+    <div class="card-header blue">💧 Flow เคมีปัจจุบัน (L/min)</div>
+    <div class="card-body">
+      <div class="row-2">
+        <div class="field">
+          <label>Flow Top</label>
+          <input type="number" id="flowTop" inputmode="decimal" placeholder="L/min" class="blue">
+          <span class="err-msg" id="errFlowTop">กรุณากรอก > 0</span>
+        </div>
+        <div class="field">
+          <label>Flow Bot</label>
+          <input type="number" id="flowBot" inputmode="decimal" placeholder="L/min" class="blue">
+          <span class="err-msg" id="errFlowBot">กรุณากรอก > 0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MACHINE -->
+  <div class="card">
+    <div class="card-header amber">⚙️ ข้อมูลเครื่องจักร</div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+      <div class="row-2">
+        <div class="field">
+          <label>Speed (m/min)</label>
+          <input type="number" id="speed" inputmode="decimal" placeholder="เช่น 120" class="amber">
+          <span class="err-msg" id="errSpeed">กรุณากรอก > 0</span>
+        </div>
+        <div class="field">
+          <label>GSM (g/m²)</label>
+          <input type="number" id="gsm" inputmode="decimal" placeholder="เช่น 110" class="amber">
+          <span class="err-msg" id="errGsm">กรุณากรอก > 0</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Width (m)</label>
+        <input type="number" id="width" inputmode="decimal" placeholder="เช่น 2.5" class="amber">
+        <span class="err-msg" id="errWidth">กรุณากรอก > 0</span>
+        <span class="hint">ความกว้างกระดาษ (Trim Width)</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:10px"></div>
+</div>
+
+<div class="submit-wrap">
+  <button id="submitBtn" onclick="handleSubmit()">📤 วิเคราะห์และบันทึก</button>
+</div>
+
+<script>
+const GAS_URL = 'YOUR_GAS_WEBAPP_URL_HERE'; // ← ใส่ URL ของ GAS Web App
+const SG = 1.08;
+const COBB_TARGET_TOP = 52;
+const COBB_TARGET_BOT = 107;
+
+let liffUserId = '';
+let liffDisplayName = '';
+
+// --- LIFF Init ---
+async function initLiff() {
+  try {
+    await liff.init({ liffId: 'YOUR_LIFF_ID_HERE' }); // ← ใส่ LIFF ID
+    document.getElementById('liffIdBadge').textContent = 'LIFF: ' + liff.id;
+    if (liff.isLoggedIn()) {
+      const profile = await liff.getProfile();
+      liffUserId = profile.userId;
+      liffDisplayName = profile.displayName;
+    } else {
+      liff.login();
+    }
+  } catch (e) {
+    document.getElementById('liffIdBadge').textContent = 'LIFF ไม่พร้อม (Dev mode)';
+    liffUserId = 'dev_user';
+    liffDisplayName = 'Dev User';
+  }
+}
+initLiff();
+
+// --- Live Kg/ton Preview ---
+const watchIds = ['flowTop','flowBot','speed','gsm','width'];
+watchIds.forEach(id => document.getElementById(id).addEventListener('input', updatePreview));
+
+function calcKgTon(flow, speed, width, gsm) {
+  if (!flow || !speed || !width || !gsm) return null;
+  return (flow * 60 * SG) / (speed * width * gsm * 0.001);
+}
+
+function updatePreview() {
+  const fTop = parseFloat(document.getElementById('flowTop').value);
+  const fBot = parseFloat(document.getElementById('flowBot').value);
+  const spd  = parseFloat(document.getElementById('speed').value);
+  const gsm  = parseFloat(document.getElementById('gsm').value);
+  const wid  = parseFloat(document.getElementById('width').value);
+
+  const kgTop = calcKgTon(fTop, spd, wid, gsm);
+  const kgBot = calcKgTon(fBot, spd, wid, gsm);
+
+  document.getElementById('prevKgTop').textContent = kgTop ? kgTop.toFixed(2) : '—';
+  document.getElementById('prevKgBot').textContent = kgBot ? kgBot.toFixed(2) : '—';
+
+  if (kgTop && kgBot) {
+    document.getElementById('prevCratio').textContent = (kgTop / kgBot).toFixed(2);
+  } else {
+    document.getElementById('prevCratio').textContent = '—';
+  }
+}
+
+// --- Validation ---
+function validate() {
+  const fields = [
+    { id: 'cobbTop', errId: 'errCobbTop', min: 10, max: 200 },
+    { id: 'cobbBot', errId: 'errCobbBot', min: 10, max: 300 },
+    { id: 'flowTop', errId: 'errFlowTop', min: 0.01 },
+    { id: 'flowBot', errId: 'errFlowBot', min: 0.01 },
+    { id: 'speed',   errId: 'errSpeed',   min: 1 },
+    { id: 'gsm',     errId: 'errGsm',     min: 1 },
+    { id: 'width',   errId: 'errWidth',   min: 0.1 },
+  ];
+  let valid = true;
+  fields.forEach(f => {
+    const el = document.getElementById(f.id);
+    const errEl = document.getElementById(f.errId);
+    const val = parseFloat(el.value);
+    const ok = !isNaN(val) && val >= f.min && (f.max === undefined || val <= f.max);
+    el.classList.toggle('error', !ok);
+    errEl.style.display = ok ? 'none' : 'block';
+    if (!ok) valid = false;
+  });
+  return valid;
+}
+
+// --- Submit ---
+async function handleSubmit() {
+  if (!validate()) return;
+
+  const cobbTop = parseFloat(document.getElementById('cobbTop').value);
+  const cobbBot = parseFloat(document.getElementById('cobbBot').value);
+  const flowTop = parseFloat(document.getElementById('flowTop').value);
+  const flowBot = parseFloat(document.getElementById('flowBot').value);
+  const speed   = parseFloat(document.getElementById('speed').value);
+  const gsm     = parseFloat(document.getElementById('gsm').value);
+  const width   = parseFloat(document.getElementById('width').value);
+
+  // คำนวณ Kg/ton ปัจจุบัน
+  const kgTop = calcKgTon(flowTop, speed, width, gsm);
+  const kgBot = calcKgTon(flowBot, speed, width, gsm);
+
+  // คำนวณ Flow ที่แนะนำ
+  const flowSuggestTop = flowTop * (COBB_TARGET_TOP / cobbTop);
+  const flowSuggestBot = flowBot * (COBB_TARGET_BOT / cobbBot);
+  const kgSuggestTop = calcKgTon(flowSuggestTop, speed, width, gsm);
+  const kgSuggestBot = calcKgTon(flowSuggestBot, speed, width, gsm);
+
+  const payload = {
+    userId: liffUserId,
+    displayName: liffDisplayName,
+    timestamp: new Date().toISOString(),
+    cobbTop, cobbBot,
+    flowTop, flowBot,
+    speed, gsm, width,
+    kgTop: kgTop.toFixed(3),
+    kgBot: kgBot.toFixed(3),
+    flowSuggestTop: flowSuggestTop.toFixed(2),
+    flowSuggestBot: flowSuggestBot.toFixed(2),
+    kgSuggestTop: kgSuggestTop.toFixed(3),
+    kgSuggestBot: kgSuggestBot.toFixed(3),
+    cobbTargetTop: COBB_TARGET_TOP,
+    cobbTargetBot: COBB_TARGET_BOT,
+    sg: SG
+  };
+
+  showLoading('กำลังวิเคราะห์และบันทึก...');
+  document.getElementById('submitBtn').disabled = true;
+
+  try {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+    hideLoading();
+    if (result.status === 'ok') {
+      if (liff.isInClient()) {
+        liff.closeWindow();
+      } else {
+        alert('✅ บันทึกสำเร็จ! ดูผลวิเคราะห์ใน LINE');
+      }
+    } else {
+      alert('❌ เกิดข้อผิดพลาด: ' + (result.message || 'unknown'));
+      document.getElementById('submitBtn').disabled = false;
+    }
+  } catch (e) {
+    hideLoading();
+    alert('❌ ไม่สามารถเชื่อมต่อได้: ' + e.message);
+    document.getElementById('submitBtn').disabled = false;
+  }
+}
+
+function showLoading(msg) {
+  document.getElementById('loadingMsg').textContent = msg;
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('show');
+}
+</script>
+</body>
+</html>
