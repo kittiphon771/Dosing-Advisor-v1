@@ -187,6 +187,8 @@ function validate() {
     { id: 'width',   errId: 'errWidth',   min: 0.1 },
   ];
   let valid = true;
+  let failList = []; // ← เพิ่ม
+
   fields.forEach(f => {
     const el = document.getElementById(f.id);
     const errEl = document.getElementById(f.errId);
@@ -194,8 +196,13 @@ function validate() {
     const ok = !isNaN(val) && val >= f.min && (f.max === undefined || val <= f.max);
     el.classList.toggle('error', !ok);
     errEl.style.display = ok ? 'none' : 'block';
-    if (!ok) valid = false;
+    if (!ok) {
+      valid = false;
+      failList.push(f.id + '=' + el.value); // ← เพิ่ม
+    }
   });
+
+  if (!valid) alert('กรอกไม่ครบ/ไม่ถูกต้อง:\n' + failList.join('\n')); // ← เพิ่ม
   return valid;
 }
 
