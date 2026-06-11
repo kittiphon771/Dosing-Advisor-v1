@@ -235,24 +235,36 @@ async function handleSubmit() {
   showLoading('กำลังวิเคราะห์และบันทึก...');
   document.getElementById('submitBtn').disabled = true;
 
-  try {
-    const params = new URLSearchParams({ data: JSON.stringify(payload) });
-    await fetch(GAS_URL + '?' + params.toString(), {
-      method: 'GET',
-      mode: 'no-cors'
-    });
+// แทนที่ block try/catch ใน handleSubmit()
+try {
+  // ใช้ no-cors แต่รอให้แน่ใจว่า request ออกไปแล้ว
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    hideLoading();
-    if (liff.isInClient()) {
-      liff.closeWindow();
-    } else {
-      alert('✅ ส่งข้อมูลแล้ว ดูผลใน LINE');
-    }
-  } catch (e) {
-    hideLoading();
-    alert('❌ ไม่สามารถเชื่อมต่อได้: ' + e.message);
-    document.getElementById('submitBtn').disabled = false;
+  await fetch(GAS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    signal: controller.signal
+  });
+
+  clearTimeout(timeoutId);
+
+  // ✅ รอ 2 วิ ก่อนปิด เพื่อให้ GAS รับข้อมูลได้ทัน
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
+  hideLoading();
+  if (liff.isInClient()) {
+    liff.closeWindow();
+  } else {
+    alert('✅ ส่งข้อมูลแล้ว ดูผลใน LINE');
   }
+} catch (e) {
+  hideLoading();
+  alert('❌ ไม่สามารถเชื่อมต่อได้: ' + e.message);
+  document.getElementById('submitBtn').disabled = false;
+}
 }
 
 function showLoading(msg) {
