@@ -252,11 +252,10 @@ async function handleSubmit() {
   document.getElementById('submitBtn').disabled = true;
 
   try {
-    await fetch(GAS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+    const params = new URLSearchParams({ data: JSON.stringify(payload) });
+    await fetch(GAS_URL + '?' + params.toString(), {
+      method: 'GET',
+      mode: 'no-cors'
     });
 
     hideLoading();
