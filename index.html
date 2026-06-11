@@ -326,7 +326,7 @@ let liffDisplayName = '';
 // --- LIFF Init ---
 async function initLiff() {
   try {
-    await liff.init({ liffId: '2010360429-kyMOwVbK' }); // ← ใส่ LIFF ID
+    await liff.init({ liffId:'2010360429-kyMOwVbK'}); // ← ใส่ LIFF ID
     document.getElementById('liffIdBadge').textContent = 'LIFF: ' + liff.id;
     if (liff.isLoggedIn()) {
       const profile = await liff.getProfile();
