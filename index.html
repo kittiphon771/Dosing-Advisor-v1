@@ -221,42 +221,6 @@ async function handleSubmit() {
     userId: liffUserId,
     displayName: liffDisplayName,
     timestamp: new Date().toISOString(),
-    cobbTop, cobbBot, flowTop, flowBot, speed, gsm, width,
-    kgTop: kgTop.toFixed(3), kgBot: kgBot.toFixed(3),
-    flowSuggestTop: flowSuggestTop.toFixed(2),
-    flowSuggestBot: flowSuggestBot.toFixed(2),
-    kgSuggestTop: kgSuggestTop.toFixed(3),
-    kgSuggestBot: kgSuggestBot.toFixed(3),
-    cobbTargetTop: COBB_TARGET_TOP,
-    cobbTargetBot: COBB_TARGET_BOT,
-    sg: SG
-  };
-
-  showLoading('กำลังวิเคราะห์และบันทึก...');
-  document.getElementById('submitBtn').disabled = true;
-
-async function handleSubmit() {
-  if (!validate()) return;
-
-  const cobbTop = parseFloat(document.getElementById('cobbTop').value);
-  const cobbBot = parseFloat(document.getElementById('cobbBot').value);
-  const flowTop = parseFloat(document.getElementById('flowTop').value);
-  const flowBot = parseFloat(document.getElementById('flowBot').value);
-  const speed   = parseFloat(document.getElementById('speed').value);
-  const gsm     = parseFloat(document.getElementById('gsm').value);
-  const width   = parseFloat(document.getElementById('width').value);
-
-  const kgTop = calcKgTon(flowTop, speed, width, gsm);
-  const kgBot = calcKgTon(flowBot, speed, width, gsm);
-  const flowSuggestTop = flowTop * (COBB_TARGET_TOP / cobbTop);
-  const flowSuggestBot = flowBot * (COBB_TARGET_BOT / cobbBot);
-  const kgSuggestTop = calcKgTon(flowSuggestTop, speed, width, gsm);
-  const kgSuggestBot = calcKgTon(flowSuggestBot, speed, width, gsm);
-
-  const payload = {
-    userId: liffUserId,
-    displayName: liffDisplayName,
-    timestamp: new Date().toISOString(),
     cobbTop, cobbBot, flowTop, flowBot,
     speed, gsm, width,
     kgTop: kgTop.toFixed(3),
@@ -290,6 +254,10 @@ async function handleSubmit() {
     alert('DEBUG fetch ERROR: ' + e.message);
   }
 
+  hideLoading();
+  document.getElementById('submitBtn').disabled = false;
+  // ไม่ closeWindow เพื่อดู alert
+}
   hideLoading();
   document.getElementById('submitBtn').disabled = false;
   // ไม่ closeWindow เพื่อดู alert
