@@ -7,209 +7,40 @@
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  
-  body {
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #F0F4F8;
-    min-height: 100vh;
-    padding-bottom: 100px;
-  }
-
-  .header {
-    background: linear-gradient(135deg, #1a6b3c 0%, #2d9e5f 100%);
-    color: white;
-    padding: 16px 20px 20px;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  }
-  .header h1 {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-  }
-  .header .sub {
-    font-size: 11px;
-    opacity: 0.8;
-    margin-top: 3px;
-  }
-  .liff-id-badge {
-    display: inline-block;
-    background: rgba(255,255,255,0.15);
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 10px;
-    margin-top: 5px;
-  }
-
+  body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background: #F0F4F8; min-height: 100vh; padding-bottom: 100px; }
+  .header { background: linear-gradient(135deg, #1a6b3c 0%, #2d9e5f 100%); color: white; padding: 16px 20px 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.3px; }
+  .header .sub { font-size: 11px; opacity: 0.8; margin-top: 3px; }
+  .liff-id-badge { display: inline-block; background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-top: 5px; }
   .content { padding: 16px; }
-
-  .card {
-    background: white;
-    border-radius: 12px;
-    margin-bottom: 14px;
-    overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  }
-
-  .card-header {
-    background: #EBF5F0;
-    border-left: 4px solid #2d9e5f;
-    padding: 10px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #1a6b3c;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .card-header.blue {
-    background: #EBF2FA;
-    border-left-color: #2563EB;
-    color: #1D4ED8;
-  }
-  .card-header.amber {
-    background: #FEF9EC;
-    border-left-color: #D97706;
-    color: #92400E;
-  }
-
+  .card { background: white; border-radius: 12px; margin-bottom: 14px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .card-header { background: #EBF5F0; border-left: 4px solid #2d9e5f; padding: 10px 14px; font-size: 13px; font-weight: 600; color: #1a6b3c; display: flex; align-items: center; gap: 6px; }
+  .card-header.blue { background: #EBF2FA; border-left-color: #2563EB; color: #1D4ED8; }
+  .card-header.amber { background: #FEF9EC; border-left-color: #D97706; color: #92400E; }
   .card-body { padding: 14px; }
-
-  .row-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .field { display: flex; flex-direction: column; gap: 5px; }
-
-  label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #374151;
-  }
-  label .range {
-    font-weight: 400;
-    color: #9CA3AF;
-    font-size: 11px;
-  }
-  label .target {
-    font-size: 10px;
-    color: #6B7280;
-    font-weight: 400;
-  }
-
-  input[type="number"] {
-    border: 1.5px solid #D1D5DB;
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 16px;
-    color: #111827;
-    outline: none;
-    transition: border-color 0.2s;
-    width: 100%;
-    -webkit-appearance: none;
-  }
-  input[type="number"]:focus {
-    border-color: #2d9e5f;
-    box-shadow: 0 0 0 3px rgba(45,158,95,0.1);
-  }
-  input[type="number"].blue:focus {
-    border-color: #2563EB;
-    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-  }
-  input[type="number"].amber:focus {
-    border-color: #D97706;
-    box-shadow: 0 0 0 3px rgba(217,119,6,0.1);
-  }
+  label { font-size: 12px; font-weight: 600; color: #374151; }
+  label .range { font-weight: 400; color: #9CA3AF; font-size: 11px; }
+  label .target { font-size: 10px; color: #6B7280; font-weight: 400; }
+  input[type="number"] { border: 1.5px solid #D1D5DB; border-radius: 8px; padding: 10px 12px; font-size: 16px; color: #111827; outline: none; transition: border-color 0.2s; width: 100%; -webkit-appearance: none; }
+  input[type="number"]:focus { border-color: #2d9e5f; box-shadow: 0 0 0 3px rgba(45,158,95,0.1); }
+  input[type="number"].blue:focus { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  input[type="number"].amber:focus { border-color: #D97706; box-shadow: 0 0 0 3px rgba(217,119,6,0.1); }
   input.error { border-color: #EF4444; }
-
-  .status-bar {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-  .status-pill {
-    flex: 1;
-    background: white;
-    border-radius: 8px;
-    padding: 10px;
-    text-align: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  }
-  .status-pill .val {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1a6b3c;
-    font-variant-numeric: tabular-nums;
-  }
-  .status-pill .lbl {
-    font-size: 10px;
-    color: #6B7280;
-    margin-top: 2px;
-  }
-
-  .submit-wrap {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    padding: 12px 16px;
-    background: white;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-  }
-
-  button#submitBtn {
-    width: 100%;
-    padding: 15px;
-    background: linear-gradient(135deg, #16A34A, #2d9e5f);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    letter-spacing: 0.3px;
-    transition: opacity 0.2s;
-  }
+  .status-bar { display: flex; gap: 8px; margin-bottom: 14px; }
+  .status-pill { flex: 1; background: white; border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .status-pill .val { font-size: 18px; font-weight: 700; color: #1a6b3c; font-variant-numeric: tabular-nums; }
+  .status-pill .lbl { font-size: 10px; color: #6B7280; margin-top: 2px; }
+  .submit-wrap { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 16px; background: white; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+  button#submitBtn { width: 100%; padding: 15px; background: linear-gradient(135deg, #16A34A, #2d9e5f); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; letter-spacing: 0.3px; transition: opacity 0.2s; }
   button#submitBtn:active { opacity: 0.85; }
-  button#submitBtn:disabled {
-    background: #9CA3AF;
-    cursor: not-allowed;
-  }
-
-  .hint {
-    font-size: 11px;
-    color: #9CA3AF;
-    margin-top: 4px;
-  }
-
-  .err-msg {
-    font-size: 11px;
-    color: #EF4444;
-    margin-top: 4px;
-    display: none;
-  }
-
-  #loadingOverlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-    flex-direction: column;
-    gap: 12px;
-    color: white;
-    font-size: 14px;
-  }
+  button#submitBtn:disabled { background: #9CA3AF; cursor: not-allowed; }
+  .hint { font-size: 11px; color: #9CA3AF; margin-top: 4px; }
+  .err-msg { font-size: 11px; color: #EF4444; margin-top: 4px; display: none; }
+  #loadingOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 999; flex-direction: column; gap: 12px; color: white; font-size: 14px; }
   #loadingOverlay.show { display: flex; }
-  .spinner {
-    width: 36px; height: 36px;
-    border: 3px solid rgba(255,255,255,0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
+  .spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
@@ -227,8 +58,6 @@
 </div>
 
 <div class="content">
-
-  <!-- Live Kg/ton preview -->
   <div class="status-bar">
     <div class="status-pill">
       <div class="val" id="prevKgTop">—</div>
@@ -244,26 +73,24 @@
     </div>
   </div>
 
-  <!-- COBB -->
   <div class="card">
     <div class="card-header">🧪 ค่า Cobb ที่วัดได้</div>
     <div class="card-body">
       <div class="row-2">
         <div class="field">
           <label>Cobb Top <span class="range">(45–60)</span><br><span class="target">Target: 52</span></label>
-          <input type="number" id="cobbTop" inputmode="decimal" placeholder="เช่น 55" class="">
+          <input type="number" id="cobbTop" inputmode="decimal" placeholder="เช่น 55">
           <span class="err-msg" id="errCobbTop">กรุณากรอกค่า 10–200</span>
         </div>
         <div class="field">
           <label>Cobb Bot <span class="range">(95–120)</span><br><span class="target">Target: 107</span></label>
-          <input type="number" id="cobbBot" inputmode="decimal" placeholder="เช่น 110" class="">
+          <input type="number" id="cobbBot" inputmode="decimal" placeholder="เช่น 110">
           <span class="err-msg" id="errCobbBot">กรุณากรอกค่า 10–300</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- FLOW -->
   <div class="card">
     <div class="card-header blue">💧 Flow เคมีปัจจุบัน (L/min)</div>
     <div class="card-body">
@@ -282,7 +109,6 @@
     </div>
   </div>
 
-  <!-- MACHINE -->
   <div class="card">
     <div class="card-header amber">⚙️ ข้อมูลเครื่องจักร</div>
     <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
@@ -315,7 +141,7 @@
 </div>
 
 <script>
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzF6SKeOxiEoFdhlo-daOyAJxbj1A5Yfw456M3uavx5oPyRC6UjfdmrfDLci-_cA3OEVg/exec'; // ← ใส่ URL ของ GAS Web App
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzF6SKeOxiEoFdhlo-da0yAJxbj1A5Yfw456M3uavx5oPyRC6UjfdmrfDLci-_cA3OEVg/exec';
 const SG = 1.08;
 const COBB_TARGET_TOP = 52;
 const COBB_TARGET_BOT = 107;
@@ -323,10 +149,9 @@ const COBB_TARGET_BOT = 107;
 let liffUserId = '';
 let liffDisplayName = '';
 
-// --- LIFF Init ---
 async function initLiff() {
   try {
-    await liff.init({ liffId:'2010360429-kyMOwVbK'}); // ← ใส่ LIFF ID
+    await liff.init({ liffId: '2010360429-kyMOwVbK' });
     document.getElementById('liffIdBadge').textContent = 'LIFF: ' + liff.id;
     if (liff.isLoggedIn()) {
       const profile = await liff.getProfile();
@@ -343,7 +168,6 @@ async function initLiff() {
 }
 initLiff();
 
-// --- Live Kg/ton Preview ---
 const watchIds = ['flowTop','flowBot','speed','gsm','width'];
 watchIds.forEach(id => document.getElementById(id).addEventListener('input', updatePreview));
 
@@ -358,21 +182,13 @@ function updatePreview() {
   const spd  = parseFloat(document.getElementById('speed').value);
   const gsm  = parseFloat(document.getElementById('gsm').value);
   const wid  = parseFloat(document.getElementById('width').value);
-
   const kgTop = calcKgTon(fTop, spd, wid, gsm);
   const kgBot = calcKgTon(fBot, spd, wid, gsm);
-
   document.getElementById('prevKgTop').textContent = kgTop ? kgTop.toFixed(2) : '—';
   document.getElementById('prevKgBot').textContent = kgBot ? kgBot.toFixed(2) : '—';
-
-  if (kgTop && kgBot) {
-    document.getElementById('prevCratio').textContent = (kgTop / kgBot).toFixed(2);
-  } else {
-    document.getElementById('prevCratio').textContent = '—';
-  }
+  document.getElementById('prevCratio').textContent = (kgTop && kgBot) ? (kgTop / kgBot).toFixed(2) : '—';
 }
 
-// --- Validation ---
 function validate() {
   const fields = [
     { id: 'cobbTop', errId: 'errCobbTop', min: 10, max: 200 },
@@ -396,7 +212,6 @@ function validate() {
   return valid;
 }
 
-// --- Submit ---
 async function handleSubmit() {
   if (!validate()) return;
 
@@ -408,11 +223,8 @@ async function handleSubmit() {
   const gsm     = parseFloat(document.getElementById('gsm').value);
   const width   = parseFloat(document.getElementById('width').value);
 
-  // คำนวณ Kg/ton ปัจจุบัน
   const kgTop = calcKgTon(flowTop, speed, width, gsm);
   const kgBot = calcKgTon(flowBot, speed, width, gsm);
-
-  // คำนวณ Flow ที่แนะนำ
   const flowSuggestTop = flowTop * (COBB_TARGET_TOP / cobbTop);
   const flowSuggestBot = flowBot * (COBB_TARGET_BOT / cobbBot);
   const kgSuggestTop = calcKgTon(flowSuggestTop, speed, width, gsm);
@@ -440,23 +252,20 @@ async function handleSubmit() {
   document.getElementById('submitBtn').disabled = true;
 
   try {
-    const res = await fetch(GAS_URL, {
+    await fetch(GAS_URL, {
       method: 'POST',
+      mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    const result = await res.json();
+
     hideLoading();
-    if (result.status === 'ok') {
-      if (liff.isInClient()) {
-        liff.closeWindow();
-      } else {
-        alert('✅ บันทึกสำเร็จ! ดูผลวิเคราะห์ใน LINE');
-      }
+    if (liff.isInClient()) {
+      liff.closeWindow();
     } else {
-      alert('❌ เกิดข้อผิดพลาด: ' + (result.message || 'unknown'));
-      document.getElementById('submitBtn').disabled = false;
+      alert('✅ ส่งข้อมูลแล้ว ดูผลใน LINE');
     }
+
   } catch (e) {
     hideLoading();
     alert('❌ ไม่สามารถเชื่อมต่อได้: ' + e.message);
