@@ -127,7 +127,7 @@
 </div>
 
 <script>
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyNW4MAosGs1oWVFlusm1076dYxig42J3IuiOH0fA47N7olZBsf76cVKkVlpKt0HzHG/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbysOqUdKJBQZtF0OZvMO1goAfqb38gzoRUanFYTkmKmggMc39MIoD5Z2h-4W2F0T3UZbw/exec';
 const SG = 1.08;
 const COBB_TARGET_TOP = 52;
 const COBB_TARGET_BOT = 107;
@@ -235,24 +235,16 @@ async function handleSubmit() {
   showLoading('กำลังวิเคราะห์และบันทึก...');
   document.getElementById('submitBtn').disabled = true;
 
-// แทนที่ block try/catch ใน handleSubmit()
 try {
-  // ใช้ no-cors แต่รอให้แน่ใจว่า request ออกไปแล้ว
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-  await fetch(GAS_URL, {
-    method: 'POST',
+  // ส่งข้อมูลผ่าน Image beacon — ไม่ถูก block โดย LIFF closeWindow
+  const encoded = encodeURIComponent(JSON.stringify(payload));
+  await fetch(GAS_URL + '?data=' + encoded, {
+    method: 'GET',
     mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-    signal: controller.signal
   });
 
-  clearTimeout(timeoutId);
-
-  // ✅ รอ 2 วิ ก่อนปิด เพื่อให้ GAS รับข้อมูลได้ทัน
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  // รอให้ GAS รับข้อมูลก่อนปิด
+  await new Promise(r => setTimeout(r, 3000));
 
   hideLoading();
   if (liff.isInClient()) {
@@ -260,9 +252,10 @@ try {
   } else {
     alert('✅ ส่งข้อมูลแล้ว ดูผลใน LINE');
   }
+
 } catch (e) {
   hideLoading();
-  alert('❌ ไม่สามารถเชื่อมต่อได้: ' + e.message);
+  alert('❌ error: ' + e.message);
   document.getElementById('submitBtn').disabled = false;
 }
 }
