@@ -155,9 +155,15 @@ async function initLiff() {
   }
 }
 initLiff();
-document.getElementById('submitBtn').addEventListener('click', handleSubmit);
-['flowTop','flowBot','speed','gsm','width'].forEach(id =>
-  document.getElementById(id).addEventListener('input', updatePreview)
+
+function onSubmitTouch(e) {
+  e.preventDefault();
+  handleSubmit();
+}
+
+const btn = document.getElementById('submitBtn');
+btn.addEventListener('click', onSubmitTouch);
+btn.addEventListener('touchstart', onSubmitTouch);
 );
 
 function calcKgTon(flow, speed, width, gsm) {
