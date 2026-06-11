@@ -153,7 +153,7 @@ async function initLiff() {
   }
 }
 initLiff();
-
+document.getElementById('submitBtn').addEventListener('click', handleSubmit);
 ['flowTop','flowBot','speed','gsm','width'].forEach(id =>
   document.getElementById(id).addEventListener('input', updatePreview)
 );
