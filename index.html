@@ -4,17 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>ระบบแยก Dosing Top/Bot</title>
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background: #F0F4F8; min-height: 100vh; padding-bottom: 100px; }
   .header { background: linear-gradient(135deg, #1a6b3c 0%, #2d9e5f 100%); color: white; padding: 16px 20px 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-  .header h1 { font-size: 18px; font-weight: 700; }
+  .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.3px; }
   .header .sub { font-size: 11px; opacity: 0.8; margin-top: 3px; }
   .liff-id-badge { display: inline-block; background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-top: 5px; }
   .content { padding: 16px; }
   .card { background: white; border-radius: 12px; margin-bottom: 14px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-  .card-header { background: #EBF5F0; border-left: 4px solid #2d9e5f; padding: 10px 14px; font-size: 13px; font-weight: 600; color: #1a6b3c; }
+  .card-header { background: #EBF5F0; border-left: 4px solid #2d9e5f; padding: 10px 14px; font-size: 13px; font-weight: 600; color: #1a6b3c; display: flex; align-items: center; gap: 6px; }
   .card-header.blue { background: #EBF2FA; border-left-color: #2563EB; color: #1D4ED8; }
   .card-header.amber { background: #FEF9EC; border-left-color: #D97706; color: #92400E; }
   .card-body { padding: 14px; }
@@ -25,14 +24,24 @@
   label .target { font-size: 10px; color: #6B7280; font-weight: 400; }
   input[type="number"] { border: 1.5px solid #D1D5DB; border-radius: 8px; padding: 10px 12px; font-size: 16px; color: #111827; outline: none; transition: border-color 0.2s; width: 100%; -webkit-appearance: none; }
   input[type="number"]:focus { border-color: #2d9e5f; box-shadow: 0 0 0 3px rgba(45,158,95,0.1); }
+  input[type="number"].blue:focus { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  input[type="number"].amber:focus { border-color: #D97706; box-shadow: 0 0 0 3px rgba(217,119,6,0.1); }
   input.error { border-color: #EF4444; }
   .status-bar { display: flex; gap: 8px; margin-bottom: 14px; }
   .status-pill { flex: 1; background: white; border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-  .status-pill .val { font-size: 18px; font-weight: 700; color: #1a6b3c; }
+  .status-pill .val { font-size: 18px; font-weight: 700; color: #1a6b3c; font-variant-numeric: tabular-nums; }
   .status-pill .lbl { font-size: 10px; color: #6B7280; margin-top: 2px; }
   .submit-wrap { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 16px; background: white; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
-  button#submitBtn { width: 100%; padding: 15px; background: linear-gradient(135deg, #16A34A, #2d9e5f); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; }
-  button#submitBtn:disabled { background: #9CA3AF; }
+  #submitBtn {
+    display: block; width: 100%; padding: 15px;
+    background: linear-gradient(135deg, #16A34A, #2d9e5f);
+    color: white; border: none; border-radius: 10px;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+    letter-spacing: 0.3px; text-align: center;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    user-select: none; -webkit-user-select: none;
+  }
+  #submitBtn.disabled { background: #9CA3AF; pointer-events: none; opacity: 0.7; }
   .hint { font-size: 11px; color: #9CA3AF; margin-top: 4px; }
   .err-msg { font-size: 11px; color: #EF4444; margin-top: 4px; display: none; }
   #loadingOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 999; flex-direction: column; gap: 12px; color: white; font-size: 14px; }
@@ -56,9 +65,18 @@
 
 <div class="content">
   <div class="status-bar">
-    <div class="status-pill"><div class="val" id="prevKgTop">—</div><div class="lbl">Kg/ton Top</div></div>
-    <div class="status-pill"><div class="val" id="prevKgBot">—</div><div class="lbl">Kg/ton Bot</div></div>
-    <div class="status-pill"><div class="val" id="prevCratio">—</div><div class="lbl">Top/Bot Ratio</div></div>
+    <div class="status-pill">
+      <div class="val" id="prevKgTop">—</div>
+      <div class="lbl">Kg/ton Top</div>
+    </div>
+    <div class="status-pill">
+      <div class="val" id="prevKgBot">—</div>
+      <div class="lbl">Kg/ton Bot</div>
+    </div>
+    <div class="status-pill">
+      <div class="val" id="prevCratio">—</div>
+      <div class="lbl">Top/Bot Ratio</div>
+    </div>
   </div>
 
   <div class="card">
@@ -85,12 +103,12 @@
       <div class="row-2">
         <div class="field">
           <label>Flow Top</label>
-          <input type="number" id="flowTop" inputmode="decimal" placeholder="L/min">
+          <input type="number" id="flowTop" inputmode="decimal" placeholder="L/min" class="blue">
           <span class="err-msg" id="errFlowTop">กรุณากรอก > 0</span>
         </div>
         <div class="field">
           <label>Flow Bot</label>
-          <input type="number" id="flowBot" inputmode="decimal" placeholder="L/min">
+          <input type="number" id="flowBot" inputmode="decimal" placeholder="L/min" class="blue">
           <span class="err-msg" id="errFlowBot">กรุณากรอก > 0</span>
         </div>
       </div>
@@ -103,39 +121,69 @@
       <div class="row-2">
         <div class="field">
           <label>Speed (m/min)</label>
-          <input type="number" id="speed" inputmode="decimal" placeholder="เช่น 120">
+          <input type="number" id="speed" inputmode="decimal" placeholder="เช่น 120" class="amber">
           <span class="err-msg" id="errSpeed">กรุณากรอก > 0</span>
         </div>
         <div class="field">
           <label>GSM (g/m²)</label>
-          <input type="number" id="gsm" inputmode="decimal" placeholder="เช่น 110">
+          <input type="number" id="gsm" inputmode="decimal" placeholder="เช่น 110" class="amber">
           <span class="err-msg" id="errGsm">กรุณากรอก > 0</span>
         </div>
       </div>
       <div class="field">
         <label>Width (m)</label>
-        <input type="number" id="width" inputmode="decimal" placeholder="เช่น 2.5">
+        <input type="number" id="width" inputmode="decimal" placeholder="เช่น 2.5" class="amber">
         <span class="err-msg" id="errWidth">กรุณากรอก > 0</span>
         <span class="hint">ความกว้างกระดาษ (Trim Width)</span>
       </div>
     </div>
   </div>
+
+  <div style="height:10px"></div>
 </div>
 
 <div class="submit-wrap">
-  <div id="submitBtn" style="width:100%;padding:15px;background:linear-gradient(135deg,#16A34A,#2d9e5f);color:white;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;text-align:center;letter-spacing:0.3px;">
-  📤 วิเคราะห์และบันทึก
-</div>
+  <div id="submitBtn">📤 วิเคราะห์และบันทึก</div>
 </div>
 
+<!-- โหลด LIFF SDK ท้าย body เพื่อให้ DOM พร้อมก่อน -->
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbysOqUdKJBQZtF0OZvMO1goAfqb38gzoRUanFYTkmKmggMc39MIoD5Z2h-4W2F0T3UZbw/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyFabmgAuSXAoChemL0GsSnf9DB3cNlwVTAsXJ95_PVPdPhk4S6e0NTjhheGZqr6JNt/exec';
 const SG = 1.08;
 const COBB_TARGET_TOP = 52;
 const COBB_TARGET_BOT = 107;
 
 let liffUserId = '';
 let liffDisplayName = '';
+
+// ── ผูก event หลัง DOM พร้อม ──────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+
+  // ผูกปุ่มด้วย touchend + click ครอบทั้งคู่
+  var btn = document.getElementById('submitBtn');
+  var touched = false;
+
+  btn.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    touched = true;
+    handleSubmit();
+  });
+
+  btn.addEventListener('click', function(e) {
+    if (touched) { touched = false; return; } // ป้องกัน double fire
+    handleSubmit();
+  });
+
+  // ผูก input preview
+  var watchIds = ['flowTop','flowBot','speed','gsm','width'];
+  watchIds.forEach(function(id) {
+    document.getElementById(id).addEventListener('input', updatePreview);
+  });
+
+  // Init LIFF
+  initLiff();
+});
 
 async function initLiff() {
   try {
@@ -154,17 +202,6 @@ async function initLiff() {
     liffDisplayName = 'Dev User';
   }
 }
-initLiff();
-
-function onSubmitTouch(e) {
-  e.preventDefault();
-  handleSubmit();
-}
-
-const btn = document.getElementById('submitBtn');
-btn.addEventListener('click', onSubmitTouch);
-btn.addEventListener('touchstart', onSubmitTouch);
-);
 
 function calcKgTon(flow, speed, width, gsm) {
   if (!flow || !speed || !width || !gsm) return null;
@@ -181,7 +218,7 @@ function updatePreview() {
   const kgBot = calcKgTon(fBot, spd, wid, gsm);
   document.getElementById('prevKgTop').textContent = kgTop ? kgTop.toFixed(2) : '—';
   document.getElementById('prevKgBot').textContent = kgBot ? kgBot.toFixed(2) : '—';
-  document.getElementById('prevCratio').textContent = (kgTop && kgBot) ? (kgTop/kgBot).toFixed(2) : '—';
+  document.getElementById('prevCratio').textContent = (kgTop && kgBot) ? (kgTop / kgBot).toFixed(2) : '—';
 }
 
 function validate() {
@@ -195,31 +232,20 @@ function validate() {
     { id: 'width',   errId: 'errWidth',   min: 0.1 },
   ];
   let valid = true;
-  let failList = []; // ← เพิ่ม
-
-  fields.forEach(f => {
+  fields.forEach(function(f) {
     const el = document.getElementById(f.id);
     const errEl = document.getElementById(f.errId);
     const val = parseFloat(el.value);
     const ok = !isNaN(val) && val >= f.min && (f.max === undefined || val <= f.max);
     el.classList.toggle('error', !ok);
     errEl.style.display = ok ? 'none' : 'block';
-    if (!ok) {
-      valid = false;
-      failList.push(f.id + '=' + el.value); // ← เพิ่ม
-    }
+    if (!ok) valid = false;
   });
-
-  if (!valid) alert('กรอกไม่ครบ/ไม่ถูกต้อง:\n' + failList.join('\n')); // ← เพิ่ม
   return valid;
 }
 
 async function handleSubmit() {
-  alert('1: เริ่ม handleSubmit');
-  
   if (!validate()) return;
-  
-  alert('2: validate ผ่าน — userId: ' + liffUserId);
 
   const cobbTop = parseFloat(document.getElementById('cobbTop').value);
   const cobbBot = parseFloat(document.getElementById('cobbBot').value);
@@ -240,7 +266,8 @@ async function handleSubmit() {
     userId: liffUserId,
     displayName: liffDisplayName,
     timestamp: new Date().toISOString(),
-    cobbTop, cobbBot, flowTop, flowBot,
+    cobbTop, cobbBot,
+    flowTop, flowBot,
     speed, gsm, width,
     kgTop: kgTop.toFixed(3),
     kgBot: kgBot.toFixed(3),
@@ -253,30 +280,40 @@ async function handleSubmit() {
     sg: SG
   };
 
-  alert('3: payload ready — kgTop: ' + payload.kgTop);
-
-  showLoading('กำลังส่ง...');
-  document.getElementById('submitBtn').disabled = true;
-
-  alert('4: กำลัง fetch...');
+  // disable ปุ่ม
+  document.getElementById('submitBtn').classList.add('disabled');
+  showLoading('กำลังวิเคราะห์และบันทึก...');
 
   try {
+    // ส่งผ่าน GET เพื่อหลีกเลี่ยง CORS preflight
     const encoded = encodeURIComponent(JSON.stringify(payload));
-    const res = await fetch(GAS_URL + '?data=' + encoded, {
+    await fetch(GAS_URL + '?data=' + encoded, {
       method: 'GET',
       mode: 'no-cors'
     });
-    alert('5: fetch สำเร็จ — type: ' + res.type);
 
-  } catch(e) {
-    alert('5: fetch ERROR — ' + e.message);
+    // รอให้ GAS รับข้อมูลก่อนปิดหน้าต่าง
+    await new Promise(function(r) { setTimeout(r, 2500); });
+
+    hideLoading();
+
+    try {
+      if (liff.isInClient()) {
+        liff.closeWindow();
+      } else {
+        alert('✅ ส่งข้อมูลแล้ว ดูผลใน LINE');
+        document.getElementById('submitBtn').classList.remove('disabled');
+      }
+    } catch(liffErr) {
+      alert('✅ ส่งข้อมูลแล้ว');
+      document.getElementById('submitBtn').classList.remove('disabled');
+    }
+
+  } catch (e) {
+    hideLoading();
+    alert('❌ ไม่สามารถเชื่อมต่อได้: ' + e.message);
+    document.getElementById('submitBtn').classList.remove('disabled');
   }
-
-  alert('6: จบแล้ว ไม่ปิดหน้าต่าง');
-  hideLoading();
-  document.getElementById('submitBtn').disabled = false;
-}
-
 }
 
 function showLoading(msg) {
