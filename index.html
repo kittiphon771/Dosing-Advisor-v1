@@ -207,7 +207,11 @@ function validate() {
 }
 
 async function handleSubmit() {
+  alert('1: เริ่ม handleSubmit');
+  
   if (!validate()) return;
+  
+  alert('2: validate ผ่าน — userId: ' + liffUserId);
 
   const cobbTop = parseFloat(document.getElementById('cobbTop').value);
   const cobbBot = parseFloat(document.getElementById('cobbBot').value);
@@ -241,34 +245,30 @@ async function handleSubmit() {
     sg: SG
   };
 
-  // ── DEBUG: แสดง userId ก่อนส่ง ──
-  alert('DEBUG userId: ' + liffUserId + '\nDisplayName: ' + liffDisplayName);
+  alert('3: payload ready — kgTop: ' + payload.kgTop);
 
   showLoading('กำลังส่ง...');
   document.getElementById('submitBtn').disabled = true;
 
+  alert('4: กำลัง fetch...');
+
   try {
     const encoded = encodeURIComponent(JSON.stringify(payload));
-    const url = GAS_URL + '?data=' + encoded;
-
-    alert('DEBUG URL length: ' + url.length + ' chars');
-
-    const res = await fetch(url, { method: 'GET', mode: 'no-cors' });
-
-    alert('DEBUG fetch done — status: ' + res.status + ' type: ' + res.type);
+    const res = await fetch(GAS_URL + '?data=' + encoded, {
+      method: 'GET',
+      mode: 'no-cors'
+    });
+    alert('5: fetch สำเร็จ — type: ' + res.type);
 
   } catch(e) {
-    alert('DEBUG fetch ERROR: ' + e.message);
+    alert('5: fetch ERROR — ' + e.message);
   }
 
+  alert('6: จบแล้ว ไม่ปิดหน้าต่าง');
   hideLoading();
   document.getElementById('submitBtn').disabled = false;
-  // ไม่ closeWindow เพื่อดู alert
 }
-  hideLoading();
-  document.getElementById('submitBtn').disabled = false;
-  // ไม่ closeWindow เพื่อดู alert
-}
+
 }
 
 function showLoading(msg) {
