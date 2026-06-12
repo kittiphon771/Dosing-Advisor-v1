@@ -189,26 +189,28 @@ document.addEventListener('DOMContentLoaded', function() {
 async function initLiff() {
   try {
     await liff.init({ liffId: '2010360429-kyMOwVbK' });
-    document.getElementById('liffIdBadge').textContent = 'LIFF: ' + liff.id;
     if (liff.isLoggedIn()) {
       const profile = await liff.getProfile();
       liffUserId = profile.userId;
       liffDisplayName = profile.displayName;
 
-      // ── ดึง Group ID จาก context ──
       const context = liff.getContext();
+      
+      // ── DEBUG: แสดง context ──
+      alert('context type: ' + context.type + '\ngroupId: ' + (context.groupId || 'ไม่มี'));
+
       if (context && context.type === 'group') {
         liffGroupId = context.groupId;
-        document.getElementById('liffIdBadge').textContent += ' | Group: ' + liffGroupId;
       }
     } else {
       liff.login();
     }
   } catch (e) {
-    document.getElementById('liffIdBadge').textContent = 'LIFF ไม่พร้อม (Dev mode)';
+    document.getElementById('liffIdBadge').textContent = 'LIFF ไม่พร้อม';
     liffUserId = 'dev_user';
     liffDisplayName = 'Dev User';
   }
+
 }
 เพิ่มตัวแปร liffGroupId ด้านบนด้วย:
 }
