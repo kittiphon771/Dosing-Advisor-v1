@@ -149,7 +149,7 @@
 <!-- โหลด LIFF SDK ท้าย body เพื่อให้ DOM พร้อมก่อน -->
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzU1IzEssFJA2JXIjyxK0JtAgqiOx7XMi6gKjWU2Uj4PygdXCwFu5izCzun81sobdmbpg/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxIz9XRuzeEPKwQM95N4uIqu2ZIcx6S7IWp-fIwpKlNyLJ6SEQXftTilgzyNd4aeaCt0w/exec';
 const SG = 1.08;
 const COBB_TARGET_TOP = 52;
 const COBB_TARGET_BOT = 107;
@@ -284,15 +284,22 @@ async function handleSubmit() {
 
   const kgTop = calcKgTon(flowTop, speed, width, gsm);
   const kgBot = calcKgTon(flowBot, speed, width, gsm);
-  const flowSuggestTop = flowTop * (COBB_TARGET_TOP / cobbTop);
-  const flowSuggestBot = flowBot * (COBB_TARGET_BOT / cobbBot);
-  const kgSuggestTop = calcKgTon(flowSuggestTop, speed, width, gsm);
-  const kgSuggestBot = calcKgTon(flowSuggestBot, speed, width, gsm);
+// ใหม่ ✅
+const N_FACTOR = 0.6;
+const RETENTION = 0.90;
+const flowSuggestTop = flowTop * Math.pow(COBB_TARGET_TOP / cobbTop, 1 / N_FACTOR) / RETENTION;
+const flowSuggestBot = flowBot * Math.pow(COBB_TARGET_BOT / cobbBot, 1 / N_FACTOR) / RETENTION;
+const kgSuggestTop = calcKgTon(flowSuggestTop, speed, width, gsm);
+const kgSuggestBot = calcKgTon(flowSuggestBot, speed, width, gsm);
 
-  const payload = {
+const totalKgCurrent = (kgTop + kgBot).toFixed(3);
+const totalKgSuggest = (kgSuggestTop + kgSuggestBot).toFixed(3);
+const totalChange = (((kgSuggestTop + kgSuggestBot) - (kgTop + kgBot)) / (kgTop + kgBot) * 100).toFixed(1);
+
+const payload = {
     userId: liffUserId,
     displayName: liffDisplayName,
-    groupId: liffGroupId,  // ← เพิ่ม
+    groupId: liffGroupId,
     timestamp: new Date().toISOString(),
     cobbTop, cobbBot,
     flowTop, flowBot,
@@ -305,9 +312,11 @@ async function handleSubmit() {
     kgSuggestBot: kgSuggestBot.toFixed(3),
     cobbTargetTop: COBB_TARGET_TOP,
     cobbTargetBot: COBB_TARGET_BOT,
-    sg: SG
-  };
-
+    sg: SG,
+    totalKgCurrent,
+    totalKgSuggest,
+    totalChange
+};
   // disable ปุ่ม
   document.getElementById('submitBtn').classList.add('disabled');
   showLoading('กำลังวิเคราะห์และบันทึก...');
