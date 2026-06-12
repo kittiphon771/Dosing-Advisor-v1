@@ -187,8 +187,17 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function initLiff() {
+  // timeout 5 วิ
+  const timeout = new Promise((_, reject) => 
+    setTimeout(() => reject(new Error('LIFF timeout')), 5000)
+  );
+
   try {
-    await liff.init({ liffId: '2010360429-kyMOwVbK' });
+    await Promise.race([
+      liff.init({ liffId: '2010360429-kyMOwVbK' }),
+      timeout
+    ]);
+
     document.getElementById('liffIdBadge').textContent = 'LIFF OK';
 
     if (liff.isLoggedIn()) {
@@ -196,7 +205,6 @@ async function initLiff() {
       liffUserId = profile.userId;
       liffDisplayName = profile.displayName;
 
-      // ── ดึง Group ID แบบ safe ──
       try {
         const context = liff.getContext();
         if (context && context.type === 'group') {
@@ -212,10 +220,12 @@ async function initLiff() {
     } else {
       liff.login();
     }
+
   } catch (e) {
-    document.getElementById('liffIdBadge').textContent = 'LIFF error: ' + e.message;
-    liffUserId = 'dev_user';
-    liffDisplayName = 'Dev User';
+    // LIFF ไม่ได้หรือ timeout — ให้ทำงานต่อใน fallback mode
+    document.getElementById('liffIdBadge').textContent = 'Fallback: ' + e.message;
+    liffUserId = 'unknown_user';
+    liffDisplayName = 'Unknown';
   }
 }
 
