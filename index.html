@@ -287,8 +287,19 @@ async function handleSubmit() {
 // ใหม่ ✅
 const N_FACTOR = 0.6;
 const RETENTION = 0.90;
-const flowSuggestTop = flowTop * Math.pow(COBB_TARGET_TOP / cobbTop, 1 / N_FACTOR) / RETENTION;
-const flowSuggestBot = flowBot * Math.pow(COBB_TARGET_BOT / cobbBot, 1 / N_FACTOR) / RETENTION;
+const COBB_TOLERANCE = 5; // ± 5 ไม่ต้องปรับ
+
+// TOP
+const errTop = cobbTop - COBB_TARGET_TOP;
+const flowSuggestTop = Math.abs(errTop) <= COBB_TOLERANCE
+  ? flowTop  // คงเดิม
+  : flowTop * Math.pow(cobbTop / COBB_TARGET_TOP, 1 / N_FACTOR) * RETENTION;
+
+// BOT
+const errBot = cobbBot - COBB_TARGET_BOT;
+const flowSuggestBot = Math.abs(errBot) <= COBB_TOLERANCE
+  ? flowBot  // คงเดิม
+  : flowBot * Math.pow(cobbBot / COBB_TARGET_BOT, 1 / N_FACTOR) * RETENTION;
 const kgSuggestTop = calcKgTon(flowSuggestTop, speed, width, gsm);
 const kgSuggestBot = calcKgTon(flowSuggestBot, speed, width, gsm);
 
