@@ -156,6 +156,7 @@ const COBB_TARGET_BOT = 107;
 
 let liffUserId = '';
 let liffDisplayName = '';
+let liffGroupId = '';  // ← เพิ่ม
 
 // ── ผูก event หลัง DOM พร้อม ──────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
@@ -193,6 +194,13 @@ async function initLiff() {
       const profile = await liff.getProfile();
       liffUserId = profile.userId;
       liffDisplayName = profile.displayName;
+
+      // ── ดึง Group ID จาก context ──
+      const context = liff.getContext();
+      if (context && context.type === 'group') {
+        liffGroupId = context.groupId;
+        document.getElementById('liffIdBadge').textContent += ' | Group: ' + liffGroupId;
+      }
     } else {
       liff.login();
     }
@@ -201,6 +209,8 @@ async function initLiff() {
     liffUserId = 'dev_user';
     liffDisplayName = 'Dev User';
   }
+}
+เพิ่มตัวแปร liffGroupId ด้านบนด้วย:
 }
 
 function calcKgTon(flow, speed, width, gsm) {
@@ -265,6 +275,7 @@ async function handleSubmit() {
   const payload = {
     userId: liffUserId,
     displayName: liffDisplayName,
+    groupId: liffGroupId,  // ← เพิ่ม
     timestamp: new Date().toISOString(),
     cobbTop, cobbBot,
     flowTop, flowBot,
