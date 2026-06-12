@@ -189,24 +189,31 @@ document.addEventListener('DOMContentLoaded', function() {
 async function initLiff() {
   try {
     await liff.init({ liffId: '2010360429-kyMOwVbK' });
+    document.getElementById('liffIdBadge').textContent = 'LIFF OK';
+
     if (liff.isLoggedIn()) {
       const profile = await liff.getProfile();
       liffUserId = profile.userId;
       liffDisplayName = profile.displayName;
 
-      const context = liff.getContext();
-      
-      // ── DEBUG: แสดง context ──
-      alert('context type: ' + context.type + '\ngroupId: ' + (context.groupId || 'ไม่มี'));
-
-      if (context && context.type === 'group') {
-        liffGroupId = context.groupId;
+      // ── ดึง Group ID แบบ safe ──
+      try {
+        const context = liff.getContext();
+        if (context && context.type === 'group') {
+          liffGroupId = context.groupId;
+          document.getElementById('liffIdBadge').textContent = 'Group: ' + liffGroupId;
+        } else {
+          document.getElementById('liffIdBadge').textContent = 'Type: ' + (context ? context.type : 'unknown');
+        }
+      } catch(ctxErr) {
+        document.getElementById('liffIdBadge').textContent = 'Context error: ' + ctxErr.message;
       }
+
     } else {
       liff.login();
     }
   } catch (e) {
-    document.getElementById('liffIdBadge').textContent = 'LIFF ไม่พร้อม';
+    document.getElementById('liffIdBadge').textContent = 'LIFF error: ' + e.message;
     liffUserId = 'dev_user';
     liffDisplayName = 'Dev User';
   }
