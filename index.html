@@ -14,19 +14,37 @@
   .content { padding: 16px; }
   .card { background: white; border-radius: 12px; margin-bottom: 14px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
   .card-header { background: #EBF5F0; border-left: 4px solid #2d9e5f; padding: 10px 14px; font-size: 13px; font-weight: 600; color: #1a6b3c; display: flex; align-items: center; gap: 6px; }
-  .card-header.blue { background: #EBF2FA; border-left-color: #2563EB; color: #1D4ED8; }
+  .card-header.blue  { background: #EBF2FA; border-left-color: #2563EB; color: #1D4ED8; }
   .card-header.amber { background: #FEF9EC; border-left-color: #D97706; color: #92400E; }
   .card-body { padding: 14px; }
   .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .field { display: flex; flex-direction: column; gap: 5px; }
   label { font-size: 12px; font-weight: 600; color: #374151; }
-  label .range { font-weight: 400; color: #9CA3AF; font-size: 11px; }
+  label .range  { font-weight: 400; color: #9CA3AF; font-size: 11px; }
   label .target { font-size: 10px; color: #6B7280; font-weight: 400; }
   input[type="number"] { border: 1.5px solid #D1D5DB; border-radius: 8px; padding: 10px 12px; font-size: 16px; color: #111827; outline: none; transition: border-color 0.2s; width: 100%; -webkit-appearance: none; }
   input[type="number"]:focus { border-color: #2d9e5f; box-shadow: 0 0 0 3px rgba(45,158,95,0.1); }
-  input[type="number"].blue:focus { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  input[type="number"].blue:focus  { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
   input[type="number"].amber:focus { border-color: #D97706; box-shadow: 0 0 0 3px rgba(217,119,6,0.1); }
   input.error { border-color: #EF4444; }
+
+  /* ── Saved-value badge ── */
+  input.saved-val { background: #FFFBEB; border-color: #D97706; color: #92400E; }
+  .saved-banner {
+    display: none; align-items: center; justify-content: space-between;
+    background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px;
+    padding: 8px 12px; margin-bottom: 12px; font-size: 12px; color: #92400E;
+    gap: 8px;
+  }
+  .saved-banner.show { display: flex; }
+  .saved-banner .info { display: flex; align-items: center; gap: 6px; }
+  .btn-edit {
+    background: #D97706; color: #fff; border: none; border-radius: 6px;
+    padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .btn-edit:active { background: #B45309; }
+
   .status-bar { display: flex; gap: 8px; margin-bottom: 14px; }
   .status-pill { flex: 1; background: white; border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
   .status-pill .val { font-size: 18px; font-weight: 700; color: #1a6b3c; font-variant-numeric: tabular-nums; }
@@ -48,6 +66,9 @@
   #loadingOverlay.show { display: flex; }
   .spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── locked state (ค่าเดิม — อ่านอย่างเดียว) ── */
+  input.locked { background: #F9FAFB; color: #6B7280; border-color: #E5E7EB; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -79,6 +100,7 @@
     </div>
   </div>
 
+  <!-- Cobb -->
   <div class="card">
     <div class="card-header">🧪 ค่า Cobb ที่วัดได้</div>
     <div class="card-body">
@@ -97,6 +119,7 @@
     </div>
   </div>
 
+  <!-- Flow -->
   <div class="card">
     <div class="card-header blue">💧 Flow เคมีปัจจุบัน (L/hr)</div>
     <div class="card-body">
@@ -115,9 +138,20 @@
     </div>
   </div>
 
+  <!-- Machine — saved banner + locked inputs -->
   <div class="card">
     <div class="card-header amber">⚙️ ข้อมูลเครื่องจักร</div>
     <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+
+      <!-- banner แสดงเมื่อมีค่าเดิม -->
+      <div class="saved-banner" id="savedBanner">
+        <div class="info">
+          <span>💾</span>
+          <span>ใช้ค่าเดิมจากการบันทึกล่าสุด</span>
+        </div>
+        <button class="btn-edit" id="btnEdit" onclick="unlockMachine()">✏️ แก้ไข</button>
+      </div>
+
       <div class="row-2">
         <div class="field">
           <label>Speed (m/min)</label>
@@ -146,22 +180,67 @@
   <div id="submitBtn">📤 วิเคราะห์และบันทึก</div>
 </div>
 
-<!-- โหลด LIFF SDK ท้าย body เพื่อให้ DOM พร้อมก่อน -->
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyMBaxCk0wKcoGN-vJdiX5QMw6s_qvXi1CzoSP4xcNC5XbEnkFI4BTq7tUjbfFe0E67/exec';
 const SG = 1.08;
 const COBB_TARGET_TOP = 52;
 const COBB_TARGET_BOT = 107;
+const STORAGE_KEY = 'dosing_machine_params'; // localStorage key
 
 let liffUserId = '';
 let liffDisplayName = '';
-let liffGroupId = '';  // ← เพิ่ม
+let liffGroupId = '';
+let machineIsLocked = false; // true = กำลังใช้ค่าเดิม
 
-// ── ผูก event หลัง DOM พร้อม ──────────────────────────────────
+// ── โหลดค่าเครื่องจากครั้งที่แล้ว ───────────────────────────
+function loadSavedMachine() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+    const { speed, gsm, width } = JSON.parse(saved);
+    if (!speed || !gsm || !width) return;
+
+    document.getElementById('speed').value = speed;
+    document.getElementById('gsm').value   = gsm;
+    document.getElementById('width').value = width;
+
+    lockMachine(); // ล็อคและแสดง banner
+  } catch(e) { /* ไม่มีค่าเก่า — ปล่อยว่างไว้ */ }
+}
+
+// ── ล็อคฟิลด์เครื่องจักร (ใช้ค่าเดิม) ──────────────────────
+function lockMachine() {
+  machineIsLocked = true;
+  ['speed','gsm','width'].forEach(function(id) {
+    document.getElementById(id).classList.add('locked');
+  });
+  document.getElementById('savedBanner').classList.add('show');
+  updatePreview();
+}
+
+// ── ปลดล็อค เพื่อให้แก้ไขได้ ─────────────────────────────────
+function unlockMachine() {
+  machineIsLocked = false;
+  ['speed','gsm','width'].forEach(function(id) {
+    var el = document.getElementById(id);
+    el.classList.remove('locked');
+    el.focus();
+  });
+  document.getElementById('savedBanner').classList.remove('show');
+  // โฟกัสที่ speed เป็นฟิลด์แรก
+  document.getElementById('speed').focus();
+}
+
+// ── บันทึกค่าเครื่องจักรลง localStorage ────────────────────────
+function saveMachineParams(speed, gsm, width) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ speed, gsm, width }));
+  } catch(e) {}
+}
+
+// ── DOM ready ────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-
-  // ผูกปุ่มด้วย touchend + click ครอบทั้งคู่
   var btn = document.getElementById('submitBtn');
   var touched = false;
 
@@ -170,41 +249,35 @@ document.addEventListener('DOMContentLoaded', function() {
     touched = true;
     handleSubmit();
   });
-
   btn.addEventListener('click', function(e) {
-    if (touched) { touched = false; return; } // ป้องกัน double fire
+    if (touched) { touched = false; return; }
     handleSubmit();
   });
 
-  // ผูก input preview
   var watchIds = ['flowTop','flowBot','speed','gsm','width'];
   watchIds.forEach(function(id) {
     document.getElementById(id).addEventListener('input', updatePreview);
   });
 
-  // Init LIFF
+  loadSavedMachine(); // ← โหลดค่าเดิมทันที
   initLiff();
 });
 
+// ── LIFF init ─────────────────────────────────────────────────
 async function initLiff() {
-  // timeout 5 วิ
-  const timeout = new Promise((_, reject) => 
+  const timeout = new Promise((_, reject) =>
     setTimeout(() => reject(new Error('LIFF timeout')), 5000)
   );
-
   try {
     await Promise.race([
       liff.init({ liffId: '2010360429-kyMOwVbK' }),
       timeout
     ]);
-
     document.getElementById('liffIdBadge').textContent = 'LIFF OK';
-
     if (liff.isLoggedIn()) {
       const profile = await liff.getProfile();
       liffUserId = profile.userId;
       liffDisplayName = profile.displayName;
-
       try {
         const context = liff.getContext();
         if (context && context.type === 'group') {
@@ -216,19 +289,15 @@ async function initLiff() {
       } catch(ctxErr) {
         document.getElementById('liffIdBadge').textContent = 'Context error: ' + ctxErr.message;
       }
-
     } else {
       liff.login();
     }
-
   } catch (e) {
-    // LIFF ไม่ได้หรือ timeout — ให้ทำงานต่อใน fallback mode
     document.getElementById('liffIdBadge').textContent = 'Fallback: ' + e.message;
     liffUserId = 'unknown_user';
     liffDisplayName = 'Unknown';
   }
 }
-
 
 function calcKgTon(flow, speed, width, gsm) {
   if (!flow || !speed || !width || !gsm) return null;
@@ -243,15 +312,15 @@ function updatePreview() {
   const wid  = parseFloat(document.getElementById('width').value);
   const kgTop = calcKgTon(fTop, spd, wid, gsm);
   const kgBot = calcKgTon(fBot, spd, wid, gsm);
-  document.getElementById('prevKgTop').textContent = kgTop ? kgTop.toFixed(2) : '—';
-  document.getElementById('prevKgBot').textContent = kgBot ? kgBot.toFixed(2) : '—';
-  document.getElementById('prevCratio').textContent = (kgTop && kgBot) ? (kgTop / kgBot).toFixed(2) : '—';
+  document.getElementById('prevKgTop').textContent   = kgTop ? kgTop.toFixed(2) : '—';
+  document.getElementById('prevKgBot').textContent   = kgBot ? kgBot.toFixed(2) : '—';
+  document.getElementById('prevCratio').textContent  = (kgTop && kgBot) ? (kgTop / kgBot).toFixed(2) : '—';
 }
 
 function validate() {
   const fields = [
-    { id: 'cobbTop', errId: 'errCobbTop', min: 10, max: 200 },
-    { id: 'cobbBot', errId: 'errCobbBot', min: 10, max: 300 },
+    { id: 'cobbTop', errId: 'errCobbTop', min: 10,  max: 200 },
+    { id: 'cobbBot', errId: 'errCobbBot', min: 10,  max: 300 },
     { id: 'flowTop', errId: 'errFlowTop', min: 0.01 },
     { id: 'flowBot', errId: 'errFlowBot', min: 0.01 },
     { id: 'speed',   errId: 'errSpeed',   min: 1 },
@@ -260,10 +329,10 @@ function validate() {
   ];
   let valid = true;
   fields.forEach(function(f) {
-    const el = document.getElementById(f.id);
+    const el    = document.getElementById(f.id);
     const errEl = document.getElementById(f.errId);
-    const val = parseFloat(el.value);
-    const ok = !isNaN(val) && val >= f.min && (f.max === undefined || val <= f.max);
+    const val   = parseFloat(el.value);
+    const ok    = !isNaN(val) && val >= f.min && (f.max === undefined || val <= f.max);
     el.classList.toggle('error', !ok);
     errEl.style.display = ok ? 'none' : 'block';
     if (!ok) valid = false;
@@ -282,73 +351,57 @@ async function handleSubmit() {
   const gsm     = parseFloat(document.getElementById('gsm').value);
   const width   = parseFloat(document.getElementById('width').value);
 
+  // ── บันทึกค่าเครื่องจักรทุกครั้งที่กด submit ────────────────
+  saveMachineParams(speed, gsm, width);
+
   const kgTop = calcKgTon(flowTop, speed, width, gsm);
   const kgBot = calcKgTon(flowBot, speed, width, gsm);
-// ใหม่ ✅
-const N_FACTOR = 0.6;
-const RETENTION = 0.90;
-const COBB_TOLERANCE = 5; // ± 5 ไม่ต้องปรับ
 
-// TOP
-const errTop = cobbTop - COBB_TARGET_TOP;
-const flowSuggestTop = Math.abs(errTop) <= COBB_TOLERANCE
-  ? flowTop  // คงเดิม
-  : flowTop * Math.pow(cobbTop / COBB_TARGET_TOP, 1 / N_FACTOR) * RETENTION;
+  const N_FACTOR   = 0.6;
+  const RETENTION  = 0.90;
+  const COBB_TOLERANCE = 5;
 
-// BOT
-const errBot = cobbBot - COBB_TARGET_BOT;
-const flowSuggestBot = Math.abs(errBot) <= COBB_TOLERANCE
-  ? flowBot  // คงเดิม
-  : flowBot * Math.pow(cobbBot / COBB_TARGET_BOT, 1 / N_FACTOR) * RETENTION;
-const kgSuggestTop = calcKgTon(flowSuggestTop, speed, width, gsm);
-const kgSuggestBot = calcKgTon(flowSuggestBot, speed, width, gsm);
+  const errTop = cobbTop - COBB_TARGET_TOP;
+  const flowSuggestTop = Math.abs(errTop) <= COBB_TOLERANCE
+    ? flowTop
+    : flowTop * Math.pow(cobbTop / COBB_TARGET_TOP, 1 / N_FACTOR) * RETENTION;
 
-const totalKgCurrent = (kgTop + kgBot).toFixed(3);
-const totalKgSuggest = (kgSuggestTop + kgSuggestBot).toFixed(3);
-const totalChange = (((kgSuggestTop + kgSuggestBot) - (kgTop + kgBot)) / (kgTop + kgBot) * 100).toFixed(1);
+  const errBot = cobbBot - COBB_TARGET_BOT;
+  const flowSuggestBot = Math.abs(errBot) <= COBB_TOLERANCE
+    ? flowBot
+    : flowBot * Math.pow(cobbBot / COBB_TARGET_BOT, 1 / N_FACTOR) * RETENTION;
 
-const payload = {
-    userId: liffUserId,
-    displayName: liffDisplayName,
-    groupId: liffGroupId,
+  const kgSuggestTop = calcKgTon(flowSuggestTop, speed, width, gsm);
+  const kgSuggestBot = calcKgTon(flowSuggestBot, speed, width, gsm);
+
+  const totalKgCurrent = (kgTop + kgBot).toFixed(3);
+  const totalKgSuggest = (kgSuggestTop + kgSuggestBot).toFixed(3);
+  const totalChange    = (((kgSuggestTop + kgSuggestBot) - (kgTop + kgBot)) / (kgTop + kgBot) * 100).toFixed(1);
+
+  const payload = {
+    userId: liffUserId, displayName: liffDisplayName, groupId: liffGroupId,
     timestamp: new Date().toISOString(),
-    cobbTop, cobbBot,
-    flowTop, flowBot,
-    speed, gsm, width,
-    kgTop: kgTop.toFixed(3),
-    kgBot: kgBot.toFixed(3),
+    cobbTop, cobbBot, flowTop, flowBot, speed, gsm, width,
+    kgTop: kgTop.toFixed(3), kgBot: kgBot.toFixed(3),
     flowSuggestTop: flowSuggestTop.toFixed(2),
     flowSuggestBot: flowSuggestBot.toFixed(2),
     kgSuggestTop: kgSuggestTop.toFixed(3),
     kgSuggestBot: kgSuggestBot.toFixed(3),
-    cobbTargetTop: COBB_TARGET_TOP,
-    cobbTargetBot: COBB_TARGET_BOT,
-    sg: SG,
-    totalKgCurrent,
-    totalKgSuggest,
-    totalChange
-};
-  // disable ปุ่ม
+    cobbTargetTop: COBB_TARGET_TOP, cobbTargetBot: COBB_TARGET_BOT,
+    sg: SG, totalKgCurrent, totalKgSuggest, totalChange
+  };
+
   document.getElementById('submitBtn').classList.add('disabled');
   showLoading('กำลังวิเคราะห์และบันทึก...');
 
   try {
-    // ส่งผ่าน GET เพื่อหลีกเลี่ยง CORS preflight
     const encoded = encodeURIComponent(JSON.stringify(payload));
-    await fetch(GAS_URL + '?data=' + encoded, {
-      method: 'GET',
-      mode: 'no-cors'
-    });
-
-    // รอให้ GAS รับข้อมูลก่อนปิดหน้าต่าง
+    await fetch(GAS_URL + '?data=' + encoded, { method: 'GET', mode: 'no-cors' });
     await new Promise(function(r) { setTimeout(r, 2500); });
-
     hideLoading();
-
     try {
-      if (liff.isInClient()) {
-        liff.closeWindow();
-      } else {
+      if (liff.isInClient()) { liff.closeWindow(); }
+      else {
         alert('✅ ส่งข้อมูลแล้ว ดูผลใน LINE');
         document.getElementById('submitBtn').classList.remove('disabled');
       }
@@ -356,7 +409,6 @@ const payload = {
       alert('✅ ส่งข้อมูลแล้ว');
       document.getElementById('submitBtn').classList.remove('disabled');
     }
-
   } catch (e) {
     hideLoading();
     alert('❌ ไม่สามารถเชื่อมต่อได้: ' + e.message);
