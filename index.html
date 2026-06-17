@@ -618,8 +618,14 @@ async function callGeminiAnalysis(payload, followUp) {
         })
       }
     );
-    const data = await resp.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'ไม่สามารถวิเคราะห์ได้';
+    const rawText = await resp.text();
+    let data;
+    try { data = JSON.parse(rawText); } catch(e) { return '❌ Parse error: ' + rawText.slice(0,200); }
+    if (!resp.ok || data.error) {
+      return '❌ [' + (data.error?.code || resp.status) + ']: ' + (data.error?.message || rawText.slice(0,200));
+    }
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+      || ('⚠️ No text — raw: ' + JSON.stringify(data).slice(0,300));
     if (followUp) {
       aiFollowUpHistory.push({ role: 'user',      content: followUp });
       aiFollowUpHistory.push({ role: 'assistant', content: text });
