@@ -13,8 +13,17 @@
   .header .sub { font-size: 11px; opacity: 0.8; margin-top: 3px; }
   .liff-id-badge { display: inline-block; background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-top: 5px; }
 
+  /* ── Machine Toggle (PM2/PM3) ── */
+  .machine-toggle-wrap { padding: 14px 16px 0; }
+  .machine-toggle { display: grid; grid-template-columns: 1fr 1fr; background: white; border-radius: 12px; padding: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); gap: 4px; }
+  .machine-btn {
+    padding: 10px 8px; border: none; border-radius: 9px; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; background: transparent; color: #6B7280;
+  }
+  .machine-btn.active { background: linear-gradient(135deg, #374151, #1F2937); color: white; }
+
   /* ── Sizing Type Toggle ── */
-  .type-toggle-wrap { padding: 14px 16px 0; }
+  .type-toggle-wrap { padding: 10px 16px 0; }
   .type-toggle { display: grid; grid-template-columns: 1fr 1fr; background: white; border-radius: 12px; padding: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); gap: 4px; }
   .type-btn {
     padding: 12px 8px; border: none; border-radius: 9px; font-size: 13px; font-weight: 600;
@@ -144,6 +153,14 @@
   <div class="liff-id-badge" id="liffIdBadge">กำลังโหลด LIFF...</div>
 </div>
 
+<!-- Machine Toggle -->
+<div class="machine-toggle-wrap">
+  <div class="machine-toggle">
+    <button class="machine-btn" id="btnPM2" onclick="setMachine('PM2')">🏭 PM2</button>
+    <button class="machine-btn" id="btnPM3" onclick="setMachine('PM3')">🏭 PM3</button>
+  </div>
+</div>
+
 <!-- Sizing Type Toggle -->
 <div class="type-toggle-wrap">
   <div class="type-toggle">
@@ -263,7 +280,7 @@
 <div class="ai-panel" id="aiPanel">
   <div class="ai-panel-handle"></div>
   <div class="ai-panel-header">
-    <div class="ai-panel-title">🤖 AI วิเคราะห์ผล <span class="ai-badge">Gemini AI</span></div>
+    <div class="ai-panel-title">📊 ผลวิเคราะห์ <span class="ai-badge">Stats Engine</span></div>
     <button class="btn-close-panel" onclick="closeAIPanel()">✕</button>
   </div>
   <div class="ai-content" id="aiContent"></div>
@@ -275,16 +292,16 @@
 
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
-const GAS_URL          = 'https://script.google.com/macros/s/AKfycbzh3CRuB06HvmeWxknKKysoxvCONdTtASdLS8j3_MuP0fW33u8S3JbI8itmzkXlo-va5g/exec';
-const GEMINI_API_KEY   = 'AQ.Ab8RN6JEiLbg-r4Nc2hsMIGjuBQVsFIIswJ-cPc9cENIjtIFYg';
+const GAS_URL          = 'https://script.google.com/macros/s/AKfycbyUW3jDQkaytkd2f4tlCgq2d2W88Gx12HLrbjOuQgLMLi96ZVtr_pHtHm1IaBIfHElw8w/exec';
 const SG               = 1.08;
 const COBB_TARGET_TOP  = 52;
 const COBB_TARGET_BOT  = 107;
-const N_FACTOR         = 0.6;
-const RETENTION        = 0.90;
+const N_FACTOR         = 0.6;   // ใช้เป็น fallback กรณี GAS ตอบไม่สำเร็จ
+const RETENTION        = 0.90;  // ใช้เป็น fallback กรณี GAS ตอบไม่สำเร็จ
 const COBB_TOLERANCE   = 5;
-const STORAGE_KEY      = 'dosing_machine_params';
-const STORAGE_TYPE_KEY = 'dosing_sizing_type';
+const STORAGE_KEY        = 'dosing_machine_params';
+const STORAGE_TYPE_KEY   = 'dosing_sizing_type';
+const STORAGE_MACHINE_KEY = 'dosing_machine_select';
 
 // Std range ตามชนิด
 const STD = {
@@ -296,8 +313,23 @@ let liffUserId      = '';
 let liffDisplayName = '';
 let liffGroupId     = '';
 let machineIsLocked = false;
-let aiFollowUpHistory = [];
-let currentType     = 'internal'; // ค่า default
+let currentType      = 'internal'; // ค่า default
+let currentMachine   = 'PM2';      // ค่า default
+
+// ── Machine (PM2/PM3) ────────────────────────────────────────
+function setMachine(m) {
+  currentMachine = m;
+  try { localStorage.setItem(STORAGE_MACHINE_KEY, m); } catch(e) {}
+  document.getElementById('btnPM2').className = 'machine-btn' + (m === 'PM2' ? ' active' : '');
+  document.getElementById('btnPM3').className = 'machine-btn' + (m === 'PM3' ? ' active' : '');
+}
+
+function loadSavedMachineSelection() {
+  try {
+    const saved = localStorage.getItem(STORAGE_MACHINE_KEY);
+    setMachine(saved === 'PM3' ? 'PM3' : 'PM2');
+  } catch(e) { setMachine('PM2'); }
+}
 
 // ── Sizing Type ───────────────────────────────────────────────
 function setSizingType(type) {
@@ -376,6 +408,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   loadSavedType();
+  loadSavedMachineSelection();
   loadSavedMachine();
   initLiff();
 });
@@ -487,42 +520,18 @@ async function handleSubmit() {
 
   saveMachineParams(speed, gsm, width);
 
-  const kgTop = calcKgTon(flowTop, speed, width, gsm);
-  const kgBot = calcKgTon(flowBot, speed, width, gsm);
-
-  // Flow Adjustment — สูตรเดียวกันทั้ง 2 ชนิด แค่ใช้ Target เดียวกัน
-  const flowSuggestTop = Math.abs(cobbTop - COBB_TARGET_TOP) <= COBB_TOLERANCE
-    ? flowTop
-    : flowTop * Math.pow(cobbTop / COBB_TARGET_TOP, 1 / N_FACTOR) * RETENTION;
-
-  const flowSuggestBot = Math.abs(cobbBot - COBB_TARGET_BOT) <= COBB_TOLERANCE
-    ? flowBot
-    : flowBot * Math.pow(cobbBot / COBB_TARGET_BOT, 1 / N_FACTOR) * RETENTION;
-
-  const kgSuggestTop   = calcKgTon(flowSuggestTop, speed, width, gsm);
-  const kgSuggestBot   = calcKgTon(flowSuggestBot, speed, width, gsm);
-  const totalKgCurrent = (kgTop + kgBot).toFixed(3);
-  const totalKgSuggest = (kgSuggestTop + kgSuggestBot).toFixed(3);
-  const totalChange    = (((kgSuggestTop + kgSuggestBot) - (kgTop + kgBot)) / (kgTop + kgBot) * 100).toFixed(1);
-
   const std     = STD[currentType];
-  const inStd   = parseFloat(totalKgSuggest) >= std.min && parseFloat(totalKgSuggest) <= std.max;
 
   const payload = {
     userId: liffUserId, displayName: liffDisplayName, groupId: liffGroupId,
     timestamp: new Date().toISOString(),
-    sizingType: currentType,                          // ← เพิ่ม
-    sizingTypeLabel: std.label,                       // ← เพิ่ม
-    stdMin: std.min, stdMax: std.max,                 // ← เพิ่ม
-    inStd,                                            // ← เพิ่ม
+    machine: currentMachine,                          // ← เพิ่ม PM2/PM3
+    sizingType: currentType,
+    sizingTypeLabel: std.label,
+    stdMin: std.min, stdMax: std.max,
     cobbTop, cobbBot, flowTop, flowBot, speed, gsm, width,
-    kgTop: kgTop.toFixed(3), kgBot: kgBot.toFixed(3),
-    flowSuggestTop: flowSuggestTop.toFixed(2),
-    flowSuggestBot: flowSuggestBot.toFixed(2),
-    kgSuggestTop: kgSuggestTop.toFixed(3),
-    kgSuggestBot: kgSuggestBot.toFixed(3),
     cobbTargetTop: COBB_TARGET_TOP, cobbTargetBot: COBB_TARGET_BOT,
-    sg: SG, totalKgCurrent, totalKgSuggest, totalChange
+    sg: SG
   };
 
   document.getElementById('submitBtn').classList.add('disabled');
@@ -530,151 +539,87 @@ async function handleSubmit() {
 
   try {
     const encoded = encodeURIComponent(JSON.stringify(payload));
-    await fetch(GAS_URL + '?data=' + encoded, { method: 'GET', mode: 'no-cors' });
-    await new Promise(function(r) { setTimeout(r, 2500); });
+    // เรียกแบบรอผลจริง (ไม่ใช้ no-cors) เพื่อให้ได้ผลวิเคราะห์จาก Stats Engine กลับมา
+    const resp = await fetch(GAS_URL + '?data=' + encoded, { method: 'GET' });
+    const result = await resp.json();
     hideLoading();
-    openAIPanel(payload);
+
+    if (result.error) {
+      alert('❌ เกิดข้อผิดพลาดจากระบบวิเคราะห์: ' + result.error);
+      openAIPanelFallback(payload);
+    } else {
+      openAIPanel(payload, result);
+    }
     document.getElementById('submitBtn').classList.remove('disabled');
   } catch(e) {
     hideLoading();
-    alert('❌ ไม่สามารถเชื่อมต่อได้: ' + e.message);
+    // เผื่อ GAS ตอบช้าหรือเชื่อมต่อไม่ได้ ใช้สูตร fallback ฝั่ง client คำนวณคร่าวๆ ให้ดูก่อน
+    openAIPanelFallback(payload);
     document.getElementById('submitBtn').classList.remove('disabled');
   }
 }
 
-// ── AI Panel ──────────────────────────────────────────────────
-async function openAIPanel(payload) {
-  aiFollowUpHistory = [];
+// ── AI Panel (Stats Engine — ไม่ใช้ Gemini) ─────────────────────
+function openAIPanel(payload, result) {
   document.getElementById('aiBackdrop').classList.add('show');
   document.getElementById('aiPanel').classList.add('show');
 
+  const calc = result.calc;
+  const tuning = result.tuning;
+
   const topDot    = Math.abs(payload.cobbTop - COBB_TARGET_TOP) <= 5 ? 'dot-green' : payload.cobbTop > COBB_TARGET_TOP ? 'dot-red' : 'dot-amber';
   const botDot    = Math.abs(payload.cobbBot - COBB_TARGET_BOT) <= 5 ? 'dot-green' : payload.cobbBot > COBB_TARGET_BOT ? 'dot-red' : 'dot-amber';
-  const changeDot = Math.abs(parseFloat(payload.totalChange)) <= 5 ? 'dot-green' : 'dot-amber';
-  const stdDot    = payload.inStd ? 'dot-green' : 'dot-amber'; // amber = ข้อมูลประกอบ ไม่ใช่ error
+  const changeDot = Math.abs(calc.totalChange) <= 5 ? 'dot-green' : 'dot-amber';
+  const stdDot    = calc.inStd ? 'dot-green' : 'dot-amber';
+  const learnDot  = tuning.confidence === 'learned' ? 'dot-green' : 'dot-amber';
 
   document.getElementById('aiContent').innerHTML = `
     <div class="chip-row">
       <div class="chip"><span class="dot ${topDot}"></span>Cobb Top: ${payload.cobbTop} g/m²</div>
       <div class="chip"><span class="dot ${botDot}"></span>Cobb Bot: ${payload.cobbBot} g/m²</div>
-      <div class="chip"><span class="dot ${changeDot}"></span>Flow เปลี่ยน ${payload.totalChange}%</div>
-      <div class="chip"><span class="dot ${stdDot}"></span>${payload.sizingTypeLabel}: ${payload.totalKgSuggest} Kg/ton ${payload.inStd ? "✅" : "⚠️ อ้างอิง Std"}</div>
+      <div class="chip"><span class="dot ${changeDot}"></span>Flow เปลี่ยน ${calc.totalChange}%</div>
+      <div class="chip"><span class="dot ${stdDot}"></span>${payload.sizingTypeLabel}: ${calc.totalKgSuggest} Kg/ton ${calc.inStd ? "✅" : "⚠️ อ้างอิง Std"}</div>
+      <div class="chip"><span class="dot ${learnDot}"></span>${payload.machine} • ${tuning.confidence === 'learned' ? 'ปรับสูตรแล้ว' : 'สูตรพื้นฐาน'} (${tuning.sampleCount} ครั้ง)</div>
     </div>
     <div id="aiAnalysis">
-      <div class="skel-wrap">
-        ${[100,85,92,70,88].map(w => `<div class="skel-line" style="width:${w}%"></div>`).join('')}
+      <div class="ai-section">
+        <div class="ai-section-label">การวิเคราะห์</div>
+        <div class="ai-bubble">${formatText(result.analysisText)}</div>
       </div>
-      <p style="color:#9CA3AF;font-size:12px;text-align:center;margin-top:8px">Gemini AI กำลังวิเคราะห์...</p>
     </div>`;
-
-  const text = await callGeminiAnalysis(payload);
-  renderAIResult(text);
 }
 
-// ── Gemini API ────────────────────────────────────────────────
-async function callGeminiAnalysis(payload, followUp) {
-  const std = STD[payload ? payload.sizingType : currentType];
-  const systemInstruction = `คุณเป็น AI ผู้เชี่ยวชาญด้านกระบวนการผลิตกระดาษ โดยเฉพาะระบบ Sizing Chemical (AKD/ASA และ Surface Sizing)
-ตอบเป็นภาษาไทย กระชับ ตรงประเด็น ใช้ emoji ช่วยแบ่งหัวข้อ ห้ามตอบยาวเกิน 200 คำ`;
+// ── Fallback (กรณี GAS ไม่ตอบ) ───────────────────────────────────
+function openAIPanelFallback(payload) {
+  document.getElementById('aiBackdrop').classList.add('show');
+  document.getElementById('aiPanel').classList.add('show');
 
-  const firstMsg = payload ? `วิเคราะห์ผลการวัด Cobb และการปรับ Dosing:
-- ประเภท Sizing: ${payload.sizingTypeLabel}
-- Std ที่กำหนด: ${payload.stdMin}–${payload.stdMax} Kg/ton (รวม)
-- Cobb Top: ${payload.cobbTop} g/m² (Target: ${COBB_TARGET_TOP}, ปกติ 45–60)
-- Cobb Bot: ${payload.cobbBot} g/m² (Target: ${COBB_TARGET_BOT}, ปกติ 95–120)
-- Flow Top: ${payload.flowTop} → ${payload.flowSuggestTop} L/hr
-- Flow Bot: ${payload.flowBot} → ${payload.flowSuggestBot} L/hr
-- Kg/ton Top: ${payload.kgTop} → ${payload.kgSuggestTop}
-- Kg/ton Bot: ${payload.kgBot} → ${payload.kgSuggestBot}
-- รวม Kg/ton: ${payload.totalKgCurrent} → ${payload.totalKgSuggest} (${payload.totalChange}%) ${payload.inStd ? '✅ อยู่ใน Std' : '⚠️ นอก Std (ใช้ประกอบการแนะนำ)'}
-- Speed: ${payload.speed} m/min, GSM: ${payload.gsm} g/m², Width: ${payload.width} m
+  const speed = payload.speed, gsm = payload.gsm, width = payload.width;
+  const kgTop = calcKgTon(payload.flowTop, speed, width, gsm);
+  const kgBot = calcKgTon(payload.flowBot, speed, width, gsm);
 
-วิเคราะห์ใน 3 ส่วน:
-1. 🔍 สถานะ Cobb (ดีหรือไม่ สาเหตุที่เป็นไปได้)
-2. ⚗️ การปรับ Flow และ Kg/ton เทียบ Std ของ${payload.sizingTypeLabel} (Std ใช้เป็นข้อมูลประกอบการแนะนำ ไม่ใช่เงื่อนไขบังคับ)
-3. ✅ สิ่งที่ต้องทำต่อ (2–3 ข้อ)` : '';
+  const flowSuggestTop = Math.abs(payload.cobbTop - COBB_TARGET_TOP) <= COBB_TOLERANCE
+    ? payload.flowTop
+    : payload.flowTop * Math.pow(payload.cobbTop / COBB_TARGET_TOP, 1 / N_FACTOR) * RETENTION;
+  const flowSuggestBot = Math.abs(payload.cobbBot - COBB_TARGET_BOT) <= COBB_TOLERANCE
+    ? payload.flowBot
+    : payload.flowBot * Math.pow(payload.cobbBot / COBB_TARGET_BOT, 1 / N_FACTOR) * RETENTION;
 
-  let contents = [];
-  if (followUp) {
-    contents = aiFollowUpHistory.map(m => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }]
-    }));
-    contents.push({ role: 'user', parts: [{ text: followUp }] });
-  } else {
-    contents = [{ role: 'user', parts: [{ text: firstMsg }] }];
-  }
-
-  try {
-    const resp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemInstruction }] },
-          contents,
-          generationConfig: { maxOutputTokens: 1000, temperature: 0.4 }
-        })
-      }
-    );
-    const rawText = await resp.text();
-    let data;
-    try { data = JSON.parse(rawText); } catch(e) { return '❌ Parse error: ' + rawText.slice(0,200); }
-    if (!resp.ok || data.error) {
-      return '❌ [' + (data.error?.code || resp.status) + ']: ' + (data.error?.message || rawText.slice(0,200));
-    }
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-      || ('⚠️ No text — raw: ' + JSON.stringify(data).slice(0,300));
-    if (followUp) {
-      aiFollowUpHistory.push({ role: 'user',      content: followUp });
-      aiFollowUpHistory.push({ role: 'assistant', content: text });
-    } else {
-      aiFollowUpHistory = [
-        { role: 'user',      content: firstMsg },
-        { role: 'assistant', content: text }
-      ];
-    }
-    return text;
-  } catch(e) {
-    return '❌ ไม่สามารถเชื่อมต่อ Gemini ได้: ' + e.message;
-  }
-}
-
-// ── Render result ─────────────────────────────────────────────
-function renderAIResult(text) {
-  document.getElementById('aiAnalysis').innerHTML = `
-    <div class="ai-section">
-      <div class="ai-section-label">การวิเคราะห์</div>
-      <div class="ai-bubble">${formatText(text)}</div>
+  document.getElementById('aiContent').innerHTML = `
+    <div class="ai-bubble" style="margin-bottom:12px;background:#FEF3C7;border-color:#FDE68A;color:#92400E;">
+      ⚠️ ไม่สามารถเชื่อมต่อระบบวิเคราะห์ (GAS) ได้ แสดงผลคำนวณพื้นฐานชั่วคราว — ข้อมูลรอบนี้ <strong>ยังไม่ถูกบันทึก</strong> กรุณาลองส่งใหม่อีกครั้งเมื่อเชื่อมต่อได้
     </div>
-    <div class="follow-up-wrap">
-      <input type="text" id="followUpInput" placeholder="ถามเพิ่มเติม..." />
-      <button class="btn-ask" onclick="sendFollowUp()">ถาม</button>
+    <div class="ai-section">
+      <div class="ai-section-label">คำนวณคร่าวๆ (สูตรพื้นฐาน)</div>
+      <div class="ai-bubble">
+        Flow Top: ${payload.flowTop} → ${flowSuggestTop.toFixed(2)} L/hr<br>
+        Flow Bot: ${payload.flowBot} → ${flowSuggestBot.toFixed(2)} L/hr
+      </div>
     </div>`;
-}
-
-async function sendFollowUp() {
-  const input = document.getElementById('followUpInput');
-  const q = input.value.trim();
-  if (!q) return;
-  input.value = '';
-  const section = document.getElementById('aiAnalysis').querySelector('.ai-section');
-  section.innerHTML += `
-    <div class="ai-section-label" style="margin-top:12px">คุณ</div>
-    <div class="ai-bubble info">${q}</div>
-    <div class="ai-section-label" style="margin-top:10px">Gemini AI</div>
-    <div id="followSkel"><div class="skel-wrap">${[90,75,85].map(w=>`<div class="skel-line" style="width:${w}%"></div>`).join('')}</div></div>`;
-  document.getElementById('aiPanel').scrollTop = 9999;
-  const resp = await callGeminiAnalysis(null, q);
-  document.getElementById('followSkel').outerHTML = `<div class="ai-bubble ok">${formatText(resp)}</div>`;
-  document.getElementById('aiPanel').scrollTop = 9999;
 }
 
 function formatText(text) {
   return text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
     .replace(/\n\n/g, '</p><p style="margin-top:8px">')
     .replace(/\n/g, '<br>');
 }
