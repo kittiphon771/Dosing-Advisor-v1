@@ -13,23 +13,16 @@
   .header .sub { font-size: 11px; opacity: 0.8; margin-top: 3px; }
   .liff-id-badge { display: inline-block; background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-top: 5px; }
 
-  /* ── Machine Toggle (PM2/PM3) ── */
   .machine-toggle-wrap { padding: 14px 16px 0; }
   .machine-toggle { display: grid; grid-template-columns: 1fr 1fr; background: white; border-radius: 12px; padding: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); gap: 4px; }
-  .machine-btn {
-    padding: 10px 8px; border: none; border-radius: 9px; font-size: 13px; font-weight: 700;
-    cursor: pointer; transition: all 0.2s; background: transparent; color: #6B7280;
-  }
+  .machine-btn { padding: 10px 8px; border: none; border-radius: 9px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; background: transparent; color: #6B7280; }
   .machine-btn.active { background: linear-gradient(135deg, #374151, #1F2937); color: white; }
 
-  /* ── Sizing Type Toggle ── */
   .type-toggle-wrap { padding: 10px 16px 0; }
   .type-toggle { display: grid; grid-template-columns: 1fr 1fr; background: white; border-radius: 12px; padding: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); gap: 4px; }
-  .type-btn {
-    padding: 12px 8px; border: none; border-radius: 9px; font-size: 13px; font-weight: 600;
-    cursor: pointer; transition: all 0.2s; background: transparent; color: #6B7280;
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
-  }
+  .grade-label-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 6px; }
+  .grade-label { font-size: 10px; color: #6B7280; text-align: center; line-height: 1.3; padding: 0 4px; }
+  .type-btn { padding: 12px 8px; border: none; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: #6B7280; display: flex; flex-direction: column; align-items: center; gap: 3px; }
   .type-btn .icon { font-size: 20px; }
   .type-btn .std  { font-size: 10px; font-weight: 400; color: #9CA3AF; }
   .type-btn.active-internal { background: linear-gradient(135deg, #1a6b3c, #2d9e5f); color: white; }
@@ -39,10 +32,9 @@
 
   .content { padding: 14px 16px; }
   .card { background: white; border-radius: 12px; margin-bottom: 14px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-  .card-header { background: #EBF5F0; border-left: 4px solid #2d9e5f; padding: 10px 14px; font-size: 13px; font-weight: 600; color: #1a6b3c; display: flex; align-items: center; gap: 6px; }
+  .card-header { background: #EBF5F0; border-left: 4px solid #2d9e5f; padding: 10px 14px; font-size: 13px; font-weight: 600; color: #1a6b3c; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .card-header.blue  { background: #EBF2FA; border-left-color: #2563EB; color: #1D4ED8; }
   .card-header.amber { background: #FEF9EC; border-left-color: #D97706; color: #92400E; }
-  .card-header.surface { background: #EFF6FF; border-left-color: #3B82F6; color: #1D4ED8; }
   .card-body { padding: 14px; }
   .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .field { display: flex; flex-direction: column; gap: 5px; }
@@ -54,41 +46,68 @@
   input[type="number"].blue:focus  { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
   input[type="number"].amber:focus { border-color: #D97706; box-shadow: 0 0 0 3px rgba(217,119,6,0.1); }
   input.error { border-color: #EF4444 !important; }
-  .saved-banner {
-    display: none; align-items: center; justify-content: space-between;
-    background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px;
-    padding: 8px 12px; margin-bottom: 12px; font-size: 12px; color: #92400E; gap: 8px;
-  }
+
+  /* ── Prominent cards: Cobb test & Scale ปั๊ม (จุดกรอกข้อมูลหลักของหน้านี้) ── */
+  .card-prominent { border: 2px solid; box-shadow: 0 4px 14px rgba(0,0,0,0.10); }
+  .card-prominent .card-header { padding: 13px 14px; font-size: 14px; }
+  .card-prominent .card-header .req-badge { margin-left: auto; font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.65); padding: 2px 8px; border-radius: 20px; letter-spacing: 0.3px; }
+  .card-prominent.green  { border-color: #2d9e5f; }
+  .card-prominent.green  .card-header { background: #1a6b3c; color: #fff; }
+  .card-prominent.green  .card-header .req-badge { color: #1a6b3c; }
+  .card-prominent.blue   { border-color: #2563EB; }
+  .card-prominent.blue   .card-header { background: #1D4ED8; color: #fff; }
+  .card-prominent.blue   .card-header .req-badge { color: #1D4ED8; }
+  .card-prominent input[type="number"] { border-width: 2px; font-size: 17px; font-weight: 600; padding: 12px 12px; }
+
+  /* ── Compact + muted card: ข้อมูลเครื่องจักร (ข้อมูลรองที่มักล็อกไว้แล้ว) ── */
+  .card-compact { box-shadow: none; border: 1px solid #E5E7EB; background: #FAFAFA; }
+  .card-compact .card-header { background: #F3F4F6; border-left-color: #9CA3AF; color: #6B7280; padding: 7px 12px; font-size: 11px; }
+  .card-compact .card-body { padding: 10px 12px; }
+  .card-compact label { color: #6B7280; font-size: 11px; }
+  .card-compact .row-2 { gap: 8px; }
+  .card-compact input[type="number"] { padding: 7px 10px; font-size: 14px; border-color: #E5E7EB; color: #4B5563; background: #fff; }
+  .card-compact input[type="number"]:focus { border-color: #9CA3AF; box-shadow: 0 0 0 3px rgba(156,163,175,0.15); }
+  .card-compact .hint { font-size: 10px; }
+  .card-compact .saved-banner { padding: 6px 10px; font-size: 11px; }
+  .card-compact .btn-edit { padding: 4px 10px; font-size: 11px; }
+
+  /* Scale display sub-label */
+  .scale-flow-hint { font-size: 11px; color: #6B7280; margin-top: 3px; font-style: italic; min-height: 16px; }
+  .scale-flow-hint.ready { color: #059669; font-style: normal; font-weight: 500; }
+
+  .saved-banner { display: none; align-items: center; justify-content: space-between; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; color: #92400E; gap: 8px; }
   .saved-banner.show { display: flex; }
   .saved-banner .info { display: flex; align-items: center; gap: 6px; }
   .btn-edit { background: #D97706; color: #fff; border: none; border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
   .btn-edit:active { background: #B45309; }
 
-  /* ── Status Bar ── */
+  .btn-delete-entry { display: block; width: 100%; margin-top: 16px; background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; border-radius: 8px; padding: 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .btn-delete-entry:active { background: #FEE2E2; }
+
+  .history-link-row { text-align: right; margin: -6px 0 10px; }
+  .btn-history-link { background: none; border: none; color: #6B7280; font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px; text-decoration: underline; }
+
+  .history-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #F3F4F6; }
+  .history-row:last-child { border-bottom: none; }
+  .history-row-info { flex: 1; min-width: 0; }
+  .history-row-time { font-size: 11px; color: #6B7280; }
+  .history-row-vals { font-size: 13px; color: #1F2937; font-weight: 600; margin-top: 2px; }
+  .btn-history-delete { flex-shrink: 0; background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; border-radius: 8px; padding: 8px 10px; font-size: 14px; cursor: pointer; }
+  .btn-history-delete:active { background: #FEE2E2; }
+  .btn-history-delete:disabled { opacity: 0.5; }
+
   .status-bar { display: flex; gap: 8px; margin-bottom: 14px; }
   .status-pill { flex: 1; background: white; border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
   .status-pill .val { font-size: 18px; font-weight: 700; color: #1a6b3c; font-variant-numeric: tabular-nums; }
   .status-pill .val.blue { color: #2563EB; }
   .status-pill .lbl { font-size: 10px; color: #6B7280; margin-top: 2px; }
 
-  /* ── Std Warning ── */
-  .std-warning {
-    display: none; align-items: center; gap: 8px;
-    background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 8px;
-    padding: 10px 12px; margin-bottom: 14px; font-size: 12px; color: #92400E;
-  }
+  .std-warning { display: none; align-items: center; gap: 8px; background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 12px; color: #92400E; }
   .std-warning.show { display: flex; }
   .std-warning.danger { background: #FEE2E2; border-color: #FECACA; color: #991B1B; }
 
   .submit-wrap { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 16px; background: white; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
-  #submitBtn {
-    display: block; width: 100%; padding: 15px;
-    background: linear-gradient(135deg, #16A34A, #2d9e5f);
-    color: white; border: none; border-radius: 10px;
-    font-size: 16px; font-weight: 700; cursor: pointer;
-    letter-spacing: 0.3px; text-align: center;
-    user-select: none; -webkit-user-select: none;
-  }
+  #submitBtn { display: block; width: 100%; padding: 15px; background: linear-gradient(135deg, #16A34A, #2d9e5f); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; letter-spacing: 0.3px; text-align: center; user-select: none; -webkit-user-select: none; }
   #submitBtn.surface-mode { background: linear-gradient(135deg, #1D4ED8, #3B82F6); }
   #submitBtn.disabled { background: #9CA3AF; pointer-events: none; opacity: 0.7; }
 
@@ -101,18 +120,9 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   input.locked { background: #F9FAFB; color: #6B7280; border-color: #E5E7EB; pointer-events: none; }
 
-  /* ── AI Panel ── */
   .ai-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 800; backdrop-filter: blur(2px); }
   .ai-backdrop.show { display: block; }
-  .ai-panel {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: white; border-radius: 20px 20px 0 0;
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
-    z-index: 900; max-height: 80vh; overflow-y: auto;
-    transform: translateY(100%);
-    transition: transform 0.35s cubic-bezier(0.34, 1.15, 0.64, 1);
-    padding-bottom: env(safe-area-inset-bottom, 16px);
-  }
+  .ai-panel { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-radius: 20px 20px 0 0; box-shadow: 0 -4px 24px rgba(0,0,0,0.18); z-index: 900; max-height: 82vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.34, 1.15, 0.64, 1); padding-bottom: env(safe-area-inset-bottom, 16px); }
   .ai-panel.show { transform: translateY(0); }
   .ai-panel-handle { width: 40px; height: 4px; background: #D1D5DB; border-radius: 2px; margin: 12px auto 0; }
   .ai-panel-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 10px; border-bottom: 1px solid #F3F4F6; }
@@ -120,24 +130,32 @@
   .ai-badge { background: linear-gradient(135deg, #4285F4, #34A853); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; letter-spacing: 0.5px; }
   .btn-close-panel { background: #F3F4F6; border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 16px; cursor: pointer; color: #6B7280; display: flex; align-items: center; justify-content: center; }
   .ai-content { padding: 14px 18px 20px; }
-  .skel-wrap { display: flex; flex-direction: column; gap: 10px; padding: 4px 0 8px; }
-  .skel-line { height: 13px; background: linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 50%, #F3F4F6 75%); background-size: 200% 100%; border-radius: 6px; animation: shimmer 1.4s infinite; }
-  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-  .ai-section { margin-bottom: 14px; }
-  .ai-section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: #9CA3AF; margin-bottom: 6px; }
-  .ai-bubble { background: #F8F9FF; border: 1px solid #E0E3FF; border-radius: 12px; padding: 12px 14px; font-size: 13px; line-height: 1.7; color: #1F2937; }
-  .ai-bubble.ok   { background: #ECFDF5; border-color: #A7F3D0; }
-  .ai-bubble.info { background: #EFF6FF; border-color: #BFDBFE; }
+
+  /* Scale Suggest Card */
+  .scale-suggest-card { background: #EFF6FF; border: 1.5px solid #BFDBFE; border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
+  .scale-suggest-title { font-size: 12px; font-weight: 700; color: #1D4ED8; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .scale-suggest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .scale-suggest-box { background: white; border-radius: 10px; padding: 10px 12px; border: 1px solid #DBEAFE; }
+  .scale-suggest-box .side-label { font-size: 11px; color: #6B7280; font-weight: 600; margin-bottom: 4px; }
+  .scale-suggest-box .scale-now { font-size: 12px; color: #9CA3AF; }
+  .scale-suggest-box .scale-arrow { font-size: 13px; color: #6B7280; margin: 2px 0; }
+  .scale-suggest-box .scale-new { font-size: 24px; font-weight: 700; color: #1D4ED8; line-height: 1.1; }
+  .scale-suggest-box .scale-flow { font-size: 11px; color: #6B7280; margin-top: 3px; }
+  .scale-suggest-box.ok .scale-new { color: #059669; }
+  .scale-suggest-box.ok { border-color: #A7F3D0; background: #ECFDF5; }
+
   .chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
   .chip { display: flex; align-items: center; gap: 5px; background: #F3F4F6; border-radius: 20px; padding: 5px 11px; font-size: 12px; font-weight: 600; color: #374151; }
   .chip .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .dot-green { background: #10B981; }
   .dot-amber { background: #F59E0B; }
   .dot-red   { background: #EF4444; }
-  .follow-up-wrap { display: flex; gap: 8px; margin-top: 10px; padding-top: 12px; border-top: 1px solid #F3F4F6; }
-  .follow-up-wrap input { flex: 1; border: 1.5px solid #D1D5DB; border-radius: 8px; padding: 9px 12px; font-size: 13px; outline: none; }
-  .follow-up-wrap input:focus { border-color: #4285F4; }
-  .btn-ask { background: linear-gradient(135deg, #4285F4, #34A853); color: #fff; border: none; border-radius: 8px; padding: 9px 14px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+
+  .ai-section { margin-bottom: 14px; }
+  .ai-section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: #9CA3AF; margin-bottom: 6px; }
+  .ai-bubble { background: #F8F9FF; border: 1px solid #E0E3FF; border-radius: 12px; padding: 12px 14px; font-size: 13px; line-height: 1.7; color: #1F2937; }
+  .ai-bubble.ok   { background: #ECFDF5; border-color: #A7F3D0; }
+  .ai-bubble.warn { background: #FFFBEB; border-color: #FDE68A; }
 </style>
 </head>
 <body>
@@ -175,6 +193,10 @@
       <span class="std">Std: 1.7–2.5 Kg/ton</span>
     </button>
   </div>
+  <div class="grade-label-row">
+    <div class="grade-label">เกรด: KI ทุกเกรด, KA125, KA150</div>
+    <div class="grade-label">เกรด: KT, KF ทุกเกรด, KA185, KA230</div>
+  </div>
 </div>
 
 <div class="content">
@@ -195,7 +217,12 @@
     </div>
   </div>
 
-  <!-- Std Warning (ข้อมูลประกอบเท่านั้น ไม่ block submit) -->
+  <!-- History / Delete link -->
+  <div class="history-link-row">
+    <button class="btn-history-link" onclick="openHistoryPanel()">📜 ดู/ลบ 5 รายการล่าสุด</button>
+  </div>
+
+  <!-- Std Warning -->
   <div class="std-warning" id="stdWarning">
     <span>⚠️</span>
     <div style="display:flex;flex-direction:column;gap:2px;">
@@ -205,8 +232,8 @@
   </div>
 
   <!-- Cobb -->
-  <div class="card">
-    <div class="card-header" id="cobbHeader">🧪 ค่า Cobb ที่วัดได้</div>
+  <div class="card card-prominent green">
+    <div class="card-header" id="cobbHeader">🧪 ค่า Cobb ที่วัดได้<span class="req-badge">กรอกทุกครั้ง</span></div>
     <div class="card-body">
       <div class="row-2">
         <div class="field">
@@ -223,48 +250,50 @@
     </div>
   </div>
 
-  <!-- Flow -->
-  <div class="card">
-    <div class="card-header blue">💧 Flow เคมีปัจจุบัน (L/hr)</div>
+  <!-- Scale ปั๊ม (แทน Flow) -->
+  <div class="card card-prominent blue">
+    <div class="card-header blue">🎛️ Scale ปั๊มปัจจุบัน<span class="req-badge">กรอกทุกครั้ง</span><span id="curveStatus" style="font-size:10px;font-weight:400;width:100%;flex-basis:100%;color:rgba(255,255,255,0.85) !important;margin-top:2px;"></span></div>
     <div class="card-body">
       <div class="row-2">
         <div class="field">
-          <label>Flow Top</label>
-          <input type="number" id="flowTop" inputmode="decimal" placeholder="L/hr" class="blue">
-          <span class="err-msg" id="errFlowTop">กรุณากรอก > 0</span>
+          <label>Scale Top</label>
+          <input type="number" id="scaleTop" inputmode="decimal" placeholder="เช่น 8" class="blue" oninput="onScaleInput()">
+          <div class="scale-flow-hint" id="hintTop">Flow จะแสดงเมื่อกรอกค่า</div>
+          <span class="err-msg" id="errScaleTop">กรุณากรอก > 0</span>
         </div>
         <div class="field">
-          <label>Flow Bot</label>
-          <input type="number" id="flowBot" inputmode="decimal" placeholder="L/hr" class="blue">
-          <span class="err-msg" id="errFlowBot">กรุณากรอก > 0</span>
+          <label>Scale Bot</label>
+          <input type="number" id="scaleBot" inputmode="decimal" placeholder="เช่น 8" class="blue" oninput="onScaleInput()">
+          <div class="scale-flow-hint" id="hintBot">Flow จะแสดงเมื่อกรอกค่า</div>
+          <span class="err-msg" id="errScaleBot">กรุณากรอก > 0</span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Machine -->
-  <div class="card">
-    <div class="card-header amber">⚙️ ข้อมูลเครื่องจักร</div>
-    <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+  <div class="card card-compact">
+    <div class="card-header">⚙️ ข้อมูลเครื่องจักร</div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:8px;">
       <div class="saved-banner" id="savedBanner">
-        <div class="info"><span>💾</span><span>ใช้ค่าเดิมจากการบันทึกล่าสุด</span></div>
+        <div class="info"><span>💾</span><span id="savedBannerMsg">ใช้ค่าเดิมจากการบันทึกล่าสุด</span></div>
         <button class="btn-edit" onclick="unlockMachine()">✏️ แก้ไข</button>
       </div>
       <div class="row-2">
         <div class="field">
           <label>Speed (m/min)</label>
-          <input type="number" id="speed" inputmode="decimal" placeholder="เช่น 120" class="amber">
+          <input type="number" id="speed" inputmode="decimal" placeholder="เช่น 120" oninput="updatePreview()">
           <span class="err-msg" id="errSpeed">กรุณากรอก > 0</span>
         </div>
         <div class="field">
           <label>GSM (g/m²)</label>
-          <input type="number" id="gsm" inputmode="decimal" placeholder="เช่น 110" class="amber">
+          <input type="number" id="gsm" inputmode="decimal" placeholder="เช่น 110" oninput="updatePreview()">
           <span class="err-msg" id="errGsm">กรุณากรอก > 0</span>
         </div>
       </div>
       <div class="field">
         <label>Width (m)</label>
-        <input type="number" id="width" inputmode="decimal" placeholder="เช่น 2.5" class="amber">
+        <input type="number" id="width" inputmode="decimal" placeholder="เช่น 2.5" oninput="updatePreview()">
         <span class="err-msg" id="errWidth">กรุณากรอก > 0</span>
         <span class="hint">ความกว้างกระดาษ (Trim Width)</span>
       </div>
@@ -292,78 +321,235 @@
 
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
-const GAS_URL          = 'https://script.google.com/macros/s/AKfycbyUW3jDQkaytkd2f4tlCgq2d2W88Gx12HLrbjOuQgLMLi96ZVtr_pHtHm1IaBIfHElw8w/exec';
-const SG               = 1.08;
-const COBB_TARGET_TOP  = 52;
-const COBB_TARGET_BOT  = 107;
-const N_FACTOR         = 0.6;   // ใช้เป็น fallback กรณี GAS ตอบไม่สำเร็จ
-const RETENTION        = 0.90;  // ใช้เป็น fallback กรณี GAS ตอบไม่สำเร็จ
-const COBB_TOLERANCE   = 5;
-const STORAGE_KEY        = 'dosing_machine_params';
-const STORAGE_TYPE_KEY   = 'dosing_sizing_type';
+const GAS_URL           = 'https://script.google.com/macros/s/AKfycbyHWrdj5IXEksXjN_DZp4M7gO0BvrcD1R9G0rFUhguK6pBJPmQf_-ORz8q5p9RxghDNSg/exec';
+const SG                = 1.08;
+const COBB_TARGET_TOP   = 52;
+const COBB_TARGET_BOT   = 107;
+const COBB_TOLERANCE    = 5;
+const STORAGE_TYPE_KEY    = 'dosing_sizing_type';
 const STORAGE_MACHINE_KEY = 'dosing_machine_select';
+// เก็บ flowSuggest รอบล่าสุดต่อ groupKey ไว้ใน localStorage
+// เพื่อใช้เป็น Base Flow ในการปรับรอบถัดไป (Cobb-Based Adjustment)
+function flowStdStorageKey(machine, type) { return 'dosing_flow_std_' + machine + '_' + type; }
+function machineStorageKey(m) { return 'dosing_machine_params_' + (m || currentMachine); }
 
-// Std range ตามชนิด
+// ── Cobb-Based Adjustment Config (ต้องตรงกับ GAS COBB_ADJ) ────
+const COBB_ADJ = {
+  top: { hardLow: 35,  hardHigh: 100, hardPct: 0.30, maxPct: 0.45 },
+  bot: { hardLow: 50,  hardHigh: 200, hardPct: 0.30, maxPct: 0.45 }
+};
+
+function calcCobbAdjustment(cobbMeasured, cobbTarget, side) {
+  const cfg = COBB_ADJ[side];
+  const diff = cobbMeasured - cobbTarget;
+  if (Math.abs(diff) <= COBB_TOLERANCE) return { adjPct: 0, adjMode: 'no_change', direction: 0 };
+
+  const direction = diff > 0 ? 1 : -1;
+  let adjPct, adjMode;
+
+  if (cobbMeasured < cfg.hardLow || cobbMeasured > cfg.hardHigh) {
+    adjPct  = cfg.hardPct;
+    adjMode = cobbMeasured < cfg.hardLow ? 'hard_low' : 'hard_high';
+  } else {
+    let rangeStart, rangeEnd;
+    if (direction > 0) { rangeStart = cobbTarget + COBB_TOLERANCE; rangeEnd = cfg.hardHigh; }
+    else               { rangeStart = cobbTarget - COBB_TOLERANCE; rangeEnd = cfg.hardLow; }
+    const span  = Math.abs(rangeEnd - rangeStart);
+    const dist  = Math.abs(cobbMeasured - rangeStart);
+    const ratio = span > 0 ? Math.min(dist / span, 1.0) : 1.0;
+    adjPct  = cfg.hardPct * ratio;
+    adjMode = 'proportional';
+  }
+  return { adjPct, adjMode, direction };
+}
+
+function calcCobbFlowSuggest(flowBase, cobbMeasured, cobbTarget, side) {
+  if (!flowBase || flowBase <= 0) return { flowSuggest: flowBase || 0, adj: { adjMode: 'no_change', direction: 0, actualAdjPct: 0, wasCapped: false } };
+  const adj      = calcCobbAdjustment(cobbMeasured, cobbTarget, side);
+  const maxDelta = flowBase * COBB_ADJ[side].maxPct;
+  const rawDelta = flowBase * adj.adjPct * adj.direction;
+  const capped   = adj.direction >= 0 ? Math.min(rawDelta, maxDelta) : Math.max(rawDelta, -maxDelta);
+  const wasCapped = Math.abs(rawDelta) > maxDelta;
+  const flowSuggest = Math.max(0.1, flowBase + capped);
+  const actualAdjPct = flowBase > 0 ? Math.round((capped / flowBase) * 1000) / 10 : 0;
+  return { flowSuggest, adj: { ...adj, actualAdjPct, wasCapped } };
+}
+
+// โหลด/บันทึก prevFlowStd จาก localStorage
+function loadPrevFlowStd(machine, type) {
+  try {
+    const s = localStorage.getItem(flowStdStorageKey(machine, type));
+    if (!s) return { top: 0, bot: 0 };
+    return JSON.parse(s);
+  } catch(e) { return { top: 0, bot: 0 }; }
+}
+function savePrevFlowStd(machine, type, top, bot) {
+  try { localStorage.setItem(flowStdStorageKey(machine, type), JSON.stringify({ top, bot })); } catch(e) {}
+}
+
 const STD = {
   internal: { min: 6,   max: 14,  label: 'Internal Sizing' },
   surface:  { min: 1.7, max: 2.5, label: 'Surface Sizing'  }
 };
 
+// ── Pump Calibration Curves ────────────────────────────────────
+// groupKey = machine_sizingType_side  เช่น PM2_surface_top
+// curveType: 'linear' → Flow = a*Scale + b
+//            'power'  → Flow = a * Scale^b
+// ค่าด้านล่างนี้คือ "ค่า fallback" เผื่อเรียก GAS ไม่ได้เท่านั้น
+// ค่าจริงที่ใช้งานจะถูกดึงจาก Google Sheet ผ่าน loadPumpCurves() ตอนเปิดแอป
+// แก้ค่า calibrate ได้ที่ Sheet 'PumpCurves' โดยตรง ไม่ต้องแก้โค้ดตรงนี้
+// อัปเดต (Re-calibrate): ปรับจากข้อมูลวัดจริง Volume/Time รอบใหม่ — surface PM2/PM3 fit ใหม่ทั้งคู่เป็น power curve
+let PUMP_CURVES = {
+  'PM2_surface_top': { type: 'power',  a: 0.2296, b: 1.4796 },
+  'PM2_surface_bot': { type: 'power',  a: 0.017,  b: 2.1743 },
+  'PM3_surface_top': { type: 'power',  a: 0.257,  b: 1.1067 },
+  'PM3_surface_bot': { type: 'power',  a: 1.2472, b: 0.9015 },
+  // Internal — สำรองไว้ (ยังใช้ baseline linear ชั่วคราว ยังไม่มีข้อมูล calibrate จริง)
+  'PM2_internal_top': { type: 'linear', a: 0.855, b: -1.54 },
+  'PM2_internal_bot': { type: 'linear', a: 0.417, b: -1.43 },
+  'PM3_internal_top': { type: 'linear', a: 0.395, b: -0.81 },
+  'PM3_internal_bot': { type: 'linear', a: 0.928, b:  0.63 },
+};
+
+let pumpCurvesSource = 'fallback'; // 'fallback' | 'sheet'
+
+// ── โหลดค่า Calibrate ปั๊มจาก Google Sheet ───────────────────────
+async function loadPumpCurves() {
+  try {
+    const resp = await fetch(GAS_URL + '?action=getPumpCurves', { method: 'GET' });
+    const result = await resp.json();
+    if (result && result.curves && Object.keys(result.curves).length > 0) {
+      Object.assign(PUMP_CURVES, result.curves); // ทับค่า fallback ด้วยค่าจริงจาก Sheet
+      pumpCurvesSource = 'sheet';
+    }
+  } catch (e) {
+    pumpCurvesSource = 'fallback';
+  }
+  updateCurveStatusBadge();
+  onScaleInput(); // คำนวณ Flow ใหม่ด้วยค่า curve ล่าสุด เผื่อผู้ใช้กรอก Scale ไว้ก่อนโหลดเสร็จ
+}
+
+function updateCurveStatusBadge() {
+  const el = document.getElementById('curveStatus');
+  if (!el) return;
+  if (pumpCurvesSource === 'sheet') {
+    el.textContent = '✓ Calibrate จาก Sheet';
+    el.style.color = '#BBF7D0';
+  } else {
+    el.textContent = '⚠️ ใช้ค่า Calibrate สำรอง (เชื่อม Sheet ไม่ได้)';
+    el.style.color = '#FDE68A';
+  }
+}
+
+function scaleToFlow(scale, machine, sizingType, side) {
+  const key = machine + '_' + sizingType + '_' + side;
+  const c = PUMP_CURVES[key];
+  if (!c || isNaN(scale) || scale <= 0) return null;
+  if (c.type === 'power') return c.a * Math.pow(scale, c.b);
+  return c.a * scale + c.b; // linear
+}
+
+function flowToScale(flow, machine, sizingType, side) {
+  const key = machine + '_' + sizingType + '_' + side;
+  const c = PUMP_CURVES[key];
+  if (!c || isNaN(flow) || flow <= 0) return null;
+  if (c.type === 'power') return Math.pow(flow / c.a, 1 / c.b);
+  return (flow - c.b) / c.a; // linear
+}
+
 let liffUserId      = '';
 let liffDisplayName = '';
 let liffGroupId     = '';
 let machineIsLocked = false;
-let currentType      = 'internal'; // ค่า default
-let currentMachine   = 'PM2';      // ค่า default
+let currentType     = 'internal';
+let currentMachine  = 'PM2';
 
-// ── Machine (PM2/PM3) ────────────────────────────────────────
+// ── Machine / Type ─────────────────────────────────────────────
 function setMachine(m) {
   currentMachine = m;
   try { localStorage.setItem(STORAGE_MACHINE_KEY, m); } catch(e) {}
   document.getElementById('btnPM2').className = 'machine-btn' + (m === 'PM2' ? ' active' : '');
   document.getElementById('btnPM3').className = 'machine-btn' + (m === 'PM3' ? ' active' : '');
+  loadSavedMachine(m);   // โหลดค่าของเครื่องที่เลือกใหม่
+  onScaleInput();
 }
 
 function loadSavedMachineSelection() {
   try {
     const saved = localStorage.getItem(STORAGE_MACHINE_KEY);
-    setMachine(saved === 'PM3' ? 'PM3' : 'PM2');
-  } catch(e) { setMachine('PM2'); }
+    const m = saved === 'PM3' ? 'PM3' : 'PM2';
+    currentMachine = m;
+    document.getElementById('btnPM2').className = 'machine-btn' + (m === 'PM2' ? ' active' : '');
+    document.getElementById('btnPM3').className = 'machine-btn' + (m === 'PM3' ? ' active' : '');
+  } catch(e) {
+    currentMachine = 'PM2';
+    document.getElementById('btnPM2').className = 'machine-btn active';
+    document.getElementById('btnPM3').className = 'machine-btn';
+  }
 }
 
-// ── Sizing Type ───────────────────────────────────────────────
 function setSizingType(type) {
   currentType = type;
   try { localStorage.setItem(STORAGE_TYPE_KEY, type); } catch(e) {}
-
-  document.getElementById('btnInternal').className =
-    'type-btn' + (type === 'internal' ? ' active-internal' : '');
-  document.getElementById('btnSurface').className =
-    'type-btn' + (type === 'surface'  ? ' active-surface'  : '');
-
-  // ปรับ submit button color
-  const btn = document.getElementById('submitBtn');
-  btn.classList.toggle('surface-mode', type === 'surface');
-
-  // ปรับ cobb header
-  document.getElementById('cobbHeader').textContent =
-    type === 'internal' ? '🧪 ค่า Cobb ที่วัดได้' : '🧪 ค่า Cobb ที่วัดได้';
-
-  updatePreview();
+  document.getElementById('btnInternal').className = 'type-btn' + (type === 'internal' ? ' active-internal' : '');
+  document.getElementById('btnSurface').className  = 'type-btn' + (type === 'surface'  ? ' active-surface'  : '');
+  document.getElementById('submitBtn').classList.toggle('surface-mode', type === 'surface');
+  onScaleInput();
 }
 
 function loadSavedType() {
   try {
-    const saved = localStorage.getItem(STORAGE_TYPE_KEY);
-    if (saved === 'internal' || saved === 'surface') setSizingType(saved);
-    else setSizingType('internal');
+    const s = localStorage.getItem(STORAGE_TYPE_KEY);
+    setSizingType((s === 'internal' || s === 'surface') ? s : 'internal');
   } catch(e) { setSizingType('internal'); }
 }
 
-// ── Machine localStorage ──────────────────────────────────────
-function loadSavedMachine() {
+// ── Scale input → show converted Flow hint ─────────────────────
+function onScaleInput() {
+  const sTop = parseFloat(document.getElementById('scaleTop').value);
+  const sBot = parseFloat(document.getElementById('scaleBot').value);
+
+  const fTop = scaleToFlow(sTop, currentMachine, currentType, 'top');
+  const fBot = scaleToFlow(sBot, currentMachine, currentType, 'bot');
+
+  const hTop = document.getElementById('hintTop');
+  const hBot = document.getElementById('hintBot');
+
+  if (fTop !== null && fTop > 0) {
+    hTop.textContent = '≈ ' + fTop.toFixed(2) + ' L/hr';
+    hTop.className = 'scale-flow-hint ready';
+  } else {
+    hTop.textContent = 'Flow จะแสดงเมื่อกรอกค่า';
+    hTop.className = 'scale-flow-hint';
+  }
+
+  if (fBot !== null && fBot > 0) {
+    hBot.textContent = '≈ ' + fBot.toFixed(2) + ' L/hr';
+    hBot.className = 'scale-flow-hint ready';
+  } else {
+    hBot.textContent = 'Flow จะแสดงเมื่อกรอกค่า';
+    hBot.className = 'scale-flow-hint';
+  }
+
+  updatePreview();
+}
+
+// ── Machine params localStorage ────────────────────────────────
+function loadSavedMachine(m) {
+  m = m || currentMachine;
+  // ล้างค่าเก่าออกก่อนเสมอ เพื่อไม่ให้ค่า PM เดิมค้างอยู่
+  document.getElementById('speed').value = '';
+  document.getElementById('gsm').value   = '';
+  document.getElementById('width').value = '';
+  document.getElementById('savedBanner').classList.remove('show');
+  machineIsLocked = false;
+  ['speed','gsm','width'].forEach(function(id) {
+    document.getElementById(id).classList.remove('locked');
+  });
+
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(machineStorageKey(m));
     if (!saved) return;
     const { speed, gsm, width } = JSON.parse(saved);
     if (!speed || !gsm || !width) return;
@@ -372,6 +558,7 @@ function loadSavedMachine() {
     document.getElementById('width').value = width;
     lockMachine();
   } catch(e) {}
+  updatePreview();
 }
 
 function lockMachine() {
@@ -379,6 +566,7 @@ function lockMachine() {
   ['speed','gsm','width'].forEach(function(id) {
     document.getElementById(id).classList.add('locked');
   });
+  document.getElementById('savedBannerMsg').textContent = 'ใช้ค่าเดิมของ ' + currentMachine + ' จากการบันทึกล่าสุด';
   document.getElementById('savedBanner').classList.add('show');
   updatePreview();
 }
@@ -393,27 +581,410 @@ function unlockMachine() {
 }
 
 function saveMachineParams(speed, gsm, width) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ speed, gsm, width })); } catch(e) {}
+  try { localStorage.setItem(machineStorageKey(currentMachine), JSON.stringify({ speed, gsm, width })); } catch(e) {}
 }
 
-// ── DOM ready ─────────────────────────────────────────────────
+// ── Calculations ───────────────────────────────────────────────
+function calcKgTon(flow, speed, width, gsm) {
+  if (!flow || !speed || !width || !gsm) return null;
+  return (flow * 60 * SG) / (speed * width * gsm * 0.001);
+}
+
+function updatePreview() {
+  const sTop = parseFloat(document.getElementById('scaleTop').value);
+  const sBot = parseFloat(document.getElementById('scaleBot').value);
+  const spd  = parseFloat(document.getElementById('speed').value);
+  const gsm  = parseFloat(document.getElementById('gsm').value);
+  const wid  = parseFloat(document.getElementById('width').value);
+
+  const fTop = scaleToFlow(sTop, currentMachine, currentType, 'top');
+  const fBot = scaleToFlow(sBot, currentMachine, currentType, 'bot');
+
+  const kgTop = calcKgTon(fTop, spd, wid, gsm);
+  const kgBot = calcKgTon(fBot, spd, wid, gsm);
+
+  document.getElementById('prevKgTop').textContent = kgTop ? kgTop.toFixed(2) : '—';
+  document.getElementById('prevKgBot').textContent = kgBot ? kgBot.toFixed(2) : '—';
+
+  const total = (kgTop && kgBot) ? kgTop + kgBot : null;
+  document.getElementById('prevTotal').textContent = total ? total.toFixed(2) : '—';
+
+  // Std warning
+  const warn = document.getElementById('stdWarning');
+  const warnMsg = document.getElementById('stdWarningMsg');
+  if (total) {
+    const std = STD[currentType];
+    if (total < std.min) {
+      warn.className = 'std-warning show';
+      warnMsg.textContent = 'Total ' + total.toFixed(2) + ' Kg/ton ต่ำกว่าเกณฑ์ ' + std.label + ' (' + std.min + '–' + std.max + ')';
+    } else if (total > std.max) {
+      warn.className = 'std-warning show danger';
+      warnMsg.textContent = 'Total ' + total.toFixed(2) + ' Kg/ton สูงกว่าเกณฑ์ ' + std.label + ' (' + std.min + '–' + std.max + ')';
+    } else {
+      warn.className = 'std-warning';
+    }
+  } else {
+    warn.className = 'std-warning';
+  }
+}
+
+// ── Validation ─────────────────────────────────────────────────
+function validate() {
+  let valid = true;
+
+  // Cobb fields
+  [
+    { id: 'cobbTop', errId: 'errCobbTop', min: 10, max: 200 },
+    { id: 'cobbBot', errId: 'errCobbBot', min: 10, max: 300 },
+  ].forEach(function(f) {
+    const el = document.getElementById(f.id);
+    const err = document.getElementById(f.errId);
+    const val = parseFloat(el.value);
+    const ok = !isNaN(val) && val >= f.min && val <= f.max;
+    el.classList.toggle('error', !ok);
+    err.style.display = ok ? 'none' : 'block';
+    if (!ok) valid = false;
+  });
+
+  // Scale fields
+  [
+    { id: 'scaleTop', errId: 'errScaleTop' },
+    { id: 'scaleBot', errId: 'errScaleBot' },
+  ].forEach(function(f) {
+    const el = document.getElementById(f.id);
+    const err = document.getElementById(f.errId);
+    const val = parseFloat(el.value);
+    const ok = !isNaN(val) && val > 0;
+    el.classList.toggle('error', !ok);
+    err.style.display = ok ? 'none' : 'block';
+    if (!ok) valid = false;
+  });
+
+  // Machine fields
+  [
+    { id: 'speed', errId: 'errSpeed', min: 1 },
+    { id: 'gsm',   errId: 'errGsm',   min: 1 },
+    { id: 'width', errId: 'errWidth',  min: 0.1 },
+  ].forEach(function(f) {
+    const el = document.getElementById(f.id);
+    const err = document.getElementById(f.errId);
+    const val = parseFloat(el.value);
+    const ok = !isNaN(val) && val >= f.min;
+    el.classList.toggle('error', !ok);
+    err.style.display = ok ? 'none' : 'block';
+    if (!ok) valid = false;
+  });
+
+  return valid;
+}
+
+// ── Submit ─────────────────────────────────────────────────────
+async function handleSubmit() {
+  if (!validate()) return;
+
+  const cobbTop  = parseFloat(document.getElementById('cobbTop').value);
+  const cobbBot  = parseFloat(document.getElementById('cobbBot').value);
+  const scaleTop = parseFloat(document.getElementById('scaleTop').value);
+  const scaleBot = parseFloat(document.getElementById('scaleBot').value);
+  const speed    = parseFloat(document.getElementById('speed').value);
+  const gsm      = parseFloat(document.getElementById('gsm').value);
+  const width    = parseFloat(document.getElementById('width').value);
+
+  // แปลง Scale → Flow ก่อนส่ง GAS
+  const flowTop = scaleToFlow(scaleTop, currentMachine, currentType, 'top');
+  const flowBot = scaleToFlow(scaleBot, currentMachine, currentType, 'bot');
+
+  saveMachineParams(speed, gsm, width);
+
+  const std = STD[currentType];
+
+  const payload = {
+    userId: liffUserId, displayName: liffDisplayName, groupId: liffGroupId,
+    timestamp: new Date().toISOString(),
+    machine: currentMachine,
+    sizingType: currentType,
+    sizingTypeLabel: std.label,
+    stdMin: std.min, stdMax: std.max,
+    cobbTop, cobbBot,
+    scaleTop, scaleBot,   // ← ส่ง Scale จริงไปด้วย เพื่อบันทึกประวัติ
+    flowTop, flowBot,     // ← flow ที่แปลงแล้ว ใช้คำนวณ Kg/ton
+    speed, gsm, width,
+    cobbTargetTop: COBB_TARGET_TOP, cobbTargetBot: COBB_TARGET_BOT,
+    sg: SG
+  };
+
+  document.getElementById('submitBtn').classList.add('disabled');
+  showLoading('กำลังวิเคราะห์และบันทึก...');
+
+  try {
+    const encoded = encodeURIComponent(JSON.stringify(payload));
+    const resp = await fetch(GAS_URL + '?data=' + encoded, { method: 'GET' });
+    const result = await resp.json();
+    hideLoading();
+    if (result.error) {
+      alert('❌ เกิดข้อผิดพลาด: ' + result.error);
+      openAIPanelFallback(payload);
+    } else {
+      // บันทึก flowSuggest รอบนี้ไว้เป็น Base ของรอบถัดไป
+      savePrevFlowStd(currentMachine, currentType, result.calc.flowSuggestTop, result.calc.flowSuggestBot);
+      openAIPanel(payload, result);
+    }
+    document.getElementById('submitBtn').classList.remove('disabled');
+  } catch(e) {
+    hideLoading();
+    openAIPanelFallback(payload);
+    document.getElementById('submitBtn').classList.remove('disabled');
+  }
+}
+
+// ── AI Panel ───────────────────────────────────────────────────
+function openAIPanel(payload, result) {
+  document.getElementById('aiBackdrop').classList.add('show');
+  document.getElementById('aiPanel').classList.add('show');
+
+  const calc   = result.calc;
+  const tuning = result.tuning;
+
+  // แปลง flowSuggest กลับเป็น Scale แนะนำ
+  const scaleSuggestTop = flowToScale(calc.flowSuggestTop, payload.machine, payload.sizingType, 'top');
+  const scaleSuggestBot = flowToScale(calc.flowSuggestBot, payload.machine, payload.sizingType, 'bot');
+
+  const topNoChange = calc.adjTop && calc.adjTop.adjMode === 'no_change';
+  const botNoChange = calc.adjBot && calc.adjBot.adjMode === 'no_change';
+
+  const topDot    = topNoChange ? 'dot-green' : (payload.cobbTop > COBB_TARGET_TOP ? 'dot-red' : 'dot-amber');
+  const botDot    = botNoChange ? 'dot-green' : (payload.cobbBot > COBB_TARGET_BOT ? 'dot-red' : 'dot-amber');
+  const stdDot    = calc.inStd ? 'dot-green' : 'dot-amber';
+  const learnDot  = tuning.confidence === 'learned' ? 'dot-green' : 'dot-amber';
+
+  const scaleTopDisplay = scaleSuggestTop !== null ? scaleSuggestTop.toFixed(1) : '—';
+  const scaleBotDisplay = scaleSuggestBot !== null ? scaleSuggestBot.toFixed(1) : '—';
+
+  const topBoxClass = topNoChange ? 'scale-suggest-box ok' : 'scale-suggest-box';
+  const botBoxClass = botNoChange ? 'scale-suggest-box ok' : 'scale-suggest-box';
+
+  // ป้าย adj mode
+  function adjLabel(adj) {
+    if (!adj || adj.adjMode === 'no_change') return '<span style="color:#059669;font-size:11px;">✅ ไม่ปรับ</span>';
+    const dir  = adj.direction > 0 ? '↑' : '↓';
+    const mode = adj.adjMode === 'hard_low'  ? 'Hard ต่ำ'
+               : adj.adjMode === 'hard_high' ? 'Hard สูง'
+               : 'Proportional';
+    const cap  = adj.wasCapped ? ' <span style="color:#D97706;">⚠️cap45%</span>' : '';
+    return `<span style="font-size:11px;color:#374151;">${dir} ${Math.abs(adj.actualAdjPct)}% [${mode}]${cap}</span>`;
+  }
+
+  document.getElementById('aiContent').innerHTML = `
+    <div class="chip-row">
+      <div class="chip"><span class="dot ${topDot}"></span>Cobb Top: ${payload.cobbTop} g/m²</div>
+      <div class="chip"><span class="dot ${botDot}"></span>Cobb Bot: ${payload.cobbBot} g/m²</div>
+      <div class="chip"><span class="dot ${stdDot}"></span>${calc.totalKgSuggest} Kg/ton ${calc.inStd ? '✅' : '⚠️'}</div>
+      <div class="chip"><span class="dot ${learnDot}"></span>${payload.machine} • ${tuning.confidence === 'learned' ? 'ปรับสูตรแล้ว' : 'สูตรพื้นฐาน'} (${tuning.sampleCount} ครั้ง)</div>
+    </div>
+
+    <div class="scale-suggest-card">
+      <div class="scale-suggest-title">🎛️ Scale ปั๊มที่แนะนำ</div>
+      <div class="scale-suggest-grid">
+        <div class="${topBoxClass}">
+          <div class="side-label">TOP</div>
+          <div class="scale-now">ปัจจุบัน: ${payload.scaleTop}</div>
+          <div class="scale-arrow">↓</div>
+          <div class="scale-new">${scaleTopDisplay}</div>
+          <div class="scale-flow">${calc.flowSuggestTop} L/hr</div>
+          <div style="margin-top:4px;">${adjLabel(calc.adjTop)}</div>
+        </div>
+        <div class="${botBoxClass}">
+          <div class="side-label">BOT</div>
+          <div class="scale-now">ปัจจุบัน: ${payload.scaleBot}</div>
+          <div class="scale-arrow">↓</div>
+          <div class="scale-new">${scaleBotDisplay}</div>
+          <div class="scale-flow">${calc.flowSuggestBot} L/hr</div>
+          <div style="margin-top:4px;">${adjLabel(calc.adjBot)}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-section">
+      <div class="ai-section-label">การวิเคราะห์</div>
+      <div class="ai-bubble">${formatText(result.analysisText)}</div>
+    </div>
+
+    <button class="btn-delete-entry" onclick="openHistoryPanel('${payload.machine}','${payload.sizingType}')">🗑️ ดู/ลบรายการล่าสุด (คีย์ Scale ผิด)</button>`;
+}
+
+// ── ดู/ลบ 5 รายการล่าสุด ──────────────────────────────────────
+async function openHistoryPanel(machine, sizingType) {
+  machine    = machine    || currentMachine;
+  sizingType = sizingType || currentType;
+
+  document.getElementById('aiBackdrop').classList.add('show');
+  document.getElementById('aiPanel').classList.add('show');
+  document.getElementById('aiContent').innerHTML = `<div class="ai-bubble">กำลังโหลดรายการ...</div>`;
+
+  try {
+    const qs = `?action=listRecentEntries&machine=${encodeURIComponent(machine)}&sizingType=${encodeURIComponent(sizingType)}`;
+    const resp = await fetch(GAS_URL + qs, { method: 'GET' });
+    const result = await resp.json();
+    if (result.error) {
+      document.getElementById('aiContent').innerHTML = `<div class="ai-bubble">❌ ${result.error}</div>`;
+      return;
+    }
+    renderHistoryList(machine, sizingType, result.entries || []);
+  } catch (e) {
+    document.getElementById('aiContent').innerHTML = `<div class="ai-bubble">❌ เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง</div>`;
+  }
+}
+
+function renderHistoryList(machine, sizingType, entries) {
+  const std = STD[sizingType];
+  const titleLabel = `${machine} / ${std ? std.label : sizingType}`;
+
+  if (!entries.length) {
+    document.getElementById('aiContent').innerHTML = `
+      <div class="ai-section-label">5 รายการล่าสุด — ${titleLabel}</div>
+      <div class="ai-bubble">ยังไม่มีประวัติของกลุ่มนี้</div>`;
+    return;
+  }
+
+  const rows = entries.map(e => {
+    const d = new Date(e.timestamp);
+    const tsLabel = isNaN(d.getTime())
+      ? e.timestamp
+      : d.toLocaleString('th-TH', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    const who = e.displayName ? ' • ' + e.displayName : '';
+    const tsAttr = String(e.timestamp).replace(/'/g, '');
+    return `
+      <div class="history-row">
+        <div class="history-row-info">
+          <div class="history-row-time">${tsLabel}${who}</div>
+          <div class="history-row-vals">Cobb T/B: ${e.cobbTop}/${e.cobbBot} g/m² • Scale T/B: ${e.scaleTop}/${e.scaleBot}</div>
+        </div>
+        <button class="btn-history-delete" onclick="confirmDeleteEntry('${machine}','${sizingType}','${tsAttr}', this)">🗑️</button>
+      </div>`;
+  }).join('');
+
+  document.getElementById('aiContent').innerHTML = `
+    <div class="ai-section-label">5 รายการล่าสุด — ${titleLabel}</div>
+    ${rows}`;
+}
+
+function confirmDeleteEntry(machine, sizingType, timestamp, btnEl) {
+  const ok = confirm('ยืนยันลบรายการนี้?\nการลบไม่สามารถย้อนกลับได้');
+  if (ok) deleteEntry(machine, sizingType, timestamp, btnEl);
+}
+
+async function deleteEntry(machine, sizingType, timestamp, btnEl) {
+  if (btnEl) btnEl.disabled = true;
+  try {
+    const qs = `?action=deleteEntry&machine=${encodeURIComponent(machine)}&sizingType=${encodeURIComponent(sizingType)}&timestamp=${encodeURIComponent(timestamp)}&userId=${encodeURIComponent(liffUserId || '')}`;
+    const resp = await fetch(GAS_URL + qs, { method: 'GET' });
+    const result = await resp.json();
+
+    if (result && result.success) {
+      openHistoryPanel(machine, sizingType); // โหลดรายการใหม่ (เหลือ 4 + อาจมีรายการเก่ากว่าเลื่อนเข้ามาแทน)
+    } else {
+      alert('❌ ลบไม่สำเร็จ: ' + ((result && result.error) || 'ไม่ทราบสาเหตุ'));
+      if (btnEl) btnEl.disabled = false;
+    }
+  } catch (e) {
+    alert('❌ เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง');
+    if (btnEl) btnEl.disabled = false;
+  }
+}
+
+// ── Fallback ───────────────────────────────────────────────────
+function openAIPanelFallback(payload) {
+  document.getElementById('aiBackdrop').classList.add('show');
+  document.getElementById('aiPanel').classList.add('show');
+
+  // ใช้ prevFlowStd จาก localStorage เป็น Base ถ้ามี ไม่งั้นใช้ Flow ปัจจุบัน
+  const prev = loadPrevFlowStd(payload.machine, payload.sizingType);
+  const baseTop = prev.top > 0 ? prev.top : payload.flowTop;
+  const baseBot = prev.bot > 0 ? prev.bot : payload.flowBot;
+
+  const resTop = calcCobbFlowSuggest(baseTop, payload.cobbTop, COBB_TARGET_TOP, 'top');
+  const resBot = calcCobbFlowSuggest(baseBot, payload.cobbBot, COBB_TARGET_BOT, 'bot');
+
+  const flowSuggestTop = resTop.flowSuggest;
+  const flowSuggestBot = resBot.flowSuggest;
+
+  const scaleSuggestTop = flowToScale(flowSuggestTop, payload.machine, payload.sizingType, 'top');
+  const scaleSuggestBot = flowToScale(flowSuggestBot, payload.machine, payload.sizingType, 'bot');
+
+  const topNoChange = resTop.adj.adjMode === 'no_change';
+  const botNoChange = resBot.adj.adjMode === 'no_change';
+
+  function adjLabelFallback(adj) {
+    if (!adj || adj.adjMode === 'no_change') return '<span style="color:#059669;font-size:11px;">✅ ไม่ปรับ</span>';
+    const dir  = adj.direction > 0 ? '↑' : '↓';
+    const mode = adj.adjMode === 'hard_low' ? 'Hard ต่ำ' : adj.adjMode === 'hard_high' ? 'Hard สูง' : 'Proportional';
+    const cap  = adj.wasCapped ? ' <span style="color:#D97706;">⚠️cap45%</span>' : '';
+    return `<span style="font-size:11px;color:#374151;">${dir} ${Math.abs(adj.actualAdjPct)}% [${mode}]${cap}</span>`;
+  }
+
+  document.getElementById('aiContent').innerHTML = `
+    <div class="ai-bubble warn" style="margin-bottom:12px;">
+      ⚠️ ไม่สามารถเชื่อมต่อระบบได้ — แสดงผลคำนวณพื้นฐานชั่วคราว ข้อมูลรอบนี้<strong>ยังไม่ถูกบันทึก</strong>
+    </div>
+    <div class="scale-suggest-card">
+      <div class="scale-suggest-title">🎛️ Scale ปั๊มที่แนะนำ (พื้นฐาน)</div>
+      <div class="scale-suggest-grid">
+        <div class="${topNoChange ? 'scale-suggest-box ok' : 'scale-suggest-box'}">
+          <div class="side-label">TOP</div>
+          <div class="scale-now">ปัจจุบัน: ${payload.scaleTop}</div>
+          <div class="scale-arrow">↓</div>
+          <div class="scale-new">${scaleSuggestTop !== null ? scaleSuggestTop.toFixed(1) : '—'}</div>
+          <div class="scale-flow">${flowSuggestTop.toFixed(2)} L/hr</div>
+          <div style="margin-top:4px;">${adjLabelFallback(resTop.adj)}</div>
+        </div>
+        <div class="${botNoChange ? 'scale-suggest-box ok' : 'scale-suggest-box'}">
+          <div class="side-label">BOT</div>
+          <div class="scale-now">ปัจจุบัน: ${payload.scaleBot}</div>
+          <div class="scale-arrow">↓</div>
+          <div class="scale-new">${scaleSuggestBot !== null ? scaleSuggestBot.toFixed(1) : '—'}</div>
+          <div class="scale-flow">${flowSuggestBot.toFixed(2)} L/hr</div>
+          <div style="margin-top:4px;">${adjLabelFallback(resBot.adj)}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function formatText(text) {
+  return text.replace(/\n\n/g, '</p><p style="margin-top:8px">').replace(/\n/g, '<br>');
+}
+
+function closeAIPanel() {
+  document.getElementById('aiBackdrop').classList.remove('show');
+  document.getElementById('aiPanel').classList.remove('show');
+}
+
+function showLoading(msg) {
+  document.getElementById('loadingMsg').textContent = msg;
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+// ── DOM Ready ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-  var btn     = document.getElementById('submitBtn');
+  var btn = document.getElementById('submitBtn');
   var touched = false;
   btn.addEventListener('touchend', function(e) { e.preventDefault(); touched = true; handleSubmit(); });
   btn.addEventListener('click',    function(e) { if (touched) { touched = false; return; } handleSubmit(); });
 
-  ['flowTop','flowBot','speed','gsm','width'].forEach(function(id) {
+  ['speed','gsm','width'].forEach(function(id) {
     document.getElementById(id).addEventListener('input', updatePreview);
   });
 
   loadSavedType();
   loadSavedMachineSelection();
-  loadSavedMachine();
+  loadSavedMachine(currentMachine);
+  loadPumpCurves();
   initLiff();
 });
 
-// ── LIFF init ─────────────────────────────────────────────────
+// ── LIFF ───────────────────────────────────────────────────────
 async function initLiff() {
   const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('LIFF timeout')), 5000));
   try {
@@ -431,7 +1002,7 @@ async function initLiff() {
         } else {
           document.getElementById('liffIdBadge').textContent = 'Type: ' + (context ? context.type : 'unknown');
         }
-      } catch(ctxErr) {
+      } catch(e) {
         document.getElementById('liffIdBadge').textContent = 'Context error';
       }
     } else { liff.login(); }
@@ -440,201 +1011,6 @@ async function initLiff() {
     liffUserId      = 'unknown_user';
     liffDisplayName = 'Unknown';
   }
-}
-
-// ── Calculations ──────────────────────────────────────────────
-function calcKgTon(flow, speed, width, gsm) {
-  if (!flow || !speed || !width || !gsm) return null;
-  return (flow * 60 * SG) / (speed * width * gsm * 0.001);
-}
-
-function updatePreview() {
-  const fTop  = parseFloat(document.getElementById('flowTop').value);
-  const fBot  = parseFloat(document.getElementById('flowBot').value);
-  const spd   = parseFloat(document.getElementById('speed').value);
-  const gsm   = parseFloat(document.getElementById('gsm').value);
-  const wid   = parseFloat(document.getElementById('width').value);
-  const kgTop = calcKgTon(fTop, spd, wid, gsm);
-  const kgBot = calcKgTon(fBot, spd, wid, gsm);
-
-  document.getElementById('prevKgTop').textContent = kgTop ? kgTop.toFixed(2) : '—';
-  document.getElementById('prevKgBot').textContent = kgBot ? kgBot.toFixed(2) : '—';
-
-  const total = (kgTop && kgBot) ? kgTop + kgBot : null;
-  document.getElementById('prevTotal').textContent = total ? total.toFixed(2) : '—';
-
-  // Std warning
-  const warn    = document.getElementById('stdWarning');
-  const warnMsg = document.getElementById('stdWarningMsg');
-  if (total) {
-    const std = STD[currentType];
-    if (total < std.min) {
-      warn.className = 'std-warning show';
-      warnMsg.textContent = `Total ${total.toFixed(2)} Kg/ton ต่ำกว่าเกณฑ์ ${std.label} (${std.min}–${std.max})`;
-    } else if (total > std.max) {
-      warn.className = 'std-warning show danger';
-      warnMsg.textContent = `Total ${total.toFixed(2)} Kg/ton สูงกว่าเกณฑ์ ${std.label} (${std.min}–${std.max})`;
-    } else {
-      warn.className = 'std-warning';
-    }
-  } else {
-    warn.className = 'std-warning';
-  }
-}
-
-// ── Validation ────────────────────────────────────────────────
-function validate() {
-  const fields = [
-    { id: 'cobbTop', errId: 'errCobbTop', min: 10,   max: 200  },
-    { id: 'cobbBot', errId: 'errCobbBot', min: 10,   max: 300  },
-    { id: 'flowTop', errId: 'errFlowTop', min: 0.01 },
-    { id: 'flowBot', errId: 'errFlowBot', min: 0.01 },
-    { id: 'speed',   errId: 'errSpeed',   min: 1    },
-    { id: 'gsm',     errId: 'errGsm',     min: 1    },
-    { id: 'width',   errId: 'errWidth',   min: 0.1  },
-  ];
-  let valid = true;
-  fields.forEach(function(f) {
-    const el  = document.getElementById(f.id);
-    const err = document.getElementById(f.errId);
-    const val = parseFloat(el.value);
-    const ok  = !isNaN(val) && val >= f.min && (f.max === undefined || val <= f.max);
-    el.classList.toggle('error', !ok);
-    err.style.display = ok ? 'none' : 'block';
-    if (!ok) valid = false;
-  });
-  return valid;
-}
-
-// ── Submit ────────────────────────────────────────────────────
-async function handleSubmit() {
-  if (!validate()) return;
-
-  const cobbTop = parseFloat(document.getElementById('cobbTop').value);
-  const cobbBot = parseFloat(document.getElementById('cobbBot').value);
-  const flowTop = parseFloat(document.getElementById('flowTop').value);
-  const flowBot = parseFloat(document.getElementById('flowBot').value);
-  const speed   = parseFloat(document.getElementById('speed').value);
-  const gsm     = parseFloat(document.getElementById('gsm').value);
-  const width   = parseFloat(document.getElementById('width').value);
-
-  saveMachineParams(speed, gsm, width);
-
-  const std     = STD[currentType];
-
-  const payload = {
-    userId: liffUserId, displayName: liffDisplayName, groupId: liffGroupId,
-    timestamp: new Date().toISOString(),
-    machine: currentMachine,                          // ← เพิ่ม PM2/PM3
-    sizingType: currentType,
-    sizingTypeLabel: std.label,
-    stdMin: std.min, stdMax: std.max,
-    cobbTop, cobbBot, flowTop, flowBot, speed, gsm, width,
-    cobbTargetTop: COBB_TARGET_TOP, cobbTargetBot: COBB_TARGET_BOT,
-    sg: SG
-  };
-
-  document.getElementById('submitBtn').classList.add('disabled');
-  showLoading('กำลังวิเคราะห์และบันทึก...');
-
-  try {
-    const encoded = encodeURIComponent(JSON.stringify(payload));
-    // เรียกแบบรอผลจริง (ไม่ใช้ no-cors) เพื่อให้ได้ผลวิเคราะห์จาก Stats Engine กลับมา
-    const resp = await fetch(GAS_URL + '?data=' + encoded, { method: 'GET' });
-    const result = await resp.json();
-    hideLoading();
-
-    if (result.error) {
-      alert('❌ เกิดข้อผิดพลาดจากระบบวิเคราะห์: ' + result.error);
-      openAIPanelFallback(payload);
-    } else {
-      openAIPanel(payload, result);
-    }
-    document.getElementById('submitBtn').classList.remove('disabled');
-  } catch(e) {
-    hideLoading();
-    // เผื่อ GAS ตอบช้าหรือเชื่อมต่อไม่ได้ ใช้สูตร fallback ฝั่ง client คำนวณคร่าวๆ ให้ดูก่อน
-    openAIPanelFallback(payload);
-    document.getElementById('submitBtn').classList.remove('disabled');
-  }
-}
-
-// ── AI Panel (Stats Engine — ไม่ใช้ Gemini) ─────────────────────
-function openAIPanel(payload, result) {
-  document.getElementById('aiBackdrop').classList.add('show');
-  document.getElementById('aiPanel').classList.add('show');
-
-  const calc = result.calc;
-  const tuning = result.tuning;
-
-  const topDot    = Math.abs(payload.cobbTop - COBB_TARGET_TOP) <= 5 ? 'dot-green' : payload.cobbTop > COBB_TARGET_TOP ? 'dot-red' : 'dot-amber';
-  const botDot    = Math.abs(payload.cobbBot - COBB_TARGET_BOT) <= 5 ? 'dot-green' : payload.cobbBot > COBB_TARGET_BOT ? 'dot-red' : 'dot-amber';
-  const changeDot = Math.abs(calc.totalChange) <= 5 ? 'dot-green' : 'dot-amber';
-  const stdDot    = calc.inStd ? 'dot-green' : 'dot-amber';
-  const learnDot  = tuning.confidence === 'learned' ? 'dot-green' : 'dot-amber';
-
-  document.getElementById('aiContent').innerHTML = `
-    <div class="chip-row">
-      <div class="chip"><span class="dot ${topDot}"></span>Cobb Top: ${payload.cobbTop} g/m²</div>
-      <div class="chip"><span class="dot ${botDot}"></span>Cobb Bot: ${payload.cobbBot} g/m²</div>
-      <div class="chip"><span class="dot ${changeDot}"></span>Flow เปลี่ยน ${calc.totalChange}%</div>
-      <div class="chip"><span class="dot ${stdDot}"></span>${payload.sizingTypeLabel}: ${calc.totalKgSuggest} Kg/ton ${calc.inStd ? "✅" : "⚠️ อ้างอิง Std"}</div>
-      <div class="chip"><span class="dot ${learnDot}"></span>${payload.machine} • ${tuning.confidence === 'learned' ? 'ปรับสูตรแล้ว' : 'สูตรพื้นฐาน'} (${tuning.sampleCount} ครั้ง)</div>
-    </div>
-    <div id="aiAnalysis">
-      <div class="ai-section">
-        <div class="ai-section-label">การวิเคราะห์</div>
-        <div class="ai-bubble">${formatText(result.analysisText)}</div>
-      </div>
-    </div>`;
-}
-
-// ── Fallback (กรณี GAS ไม่ตอบ) ───────────────────────────────────
-function openAIPanelFallback(payload) {
-  document.getElementById('aiBackdrop').classList.add('show');
-  document.getElementById('aiPanel').classList.add('show');
-
-  const speed = payload.speed, gsm = payload.gsm, width = payload.width;
-  const kgTop = calcKgTon(payload.flowTop, speed, width, gsm);
-  const kgBot = calcKgTon(payload.flowBot, speed, width, gsm);
-
-  const flowSuggestTop = Math.abs(payload.cobbTop - COBB_TARGET_TOP) <= COBB_TOLERANCE
-    ? payload.flowTop
-    : payload.flowTop * Math.pow(payload.cobbTop / COBB_TARGET_TOP, 1 / N_FACTOR) * RETENTION;
-  const flowSuggestBot = Math.abs(payload.cobbBot - COBB_TARGET_BOT) <= COBB_TOLERANCE
-    ? payload.flowBot
-    : payload.flowBot * Math.pow(payload.cobbBot / COBB_TARGET_BOT, 1 / N_FACTOR) * RETENTION;
-
-  document.getElementById('aiContent').innerHTML = `
-    <div class="ai-bubble" style="margin-bottom:12px;background:#FEF3C7;border-color:#FDE68A;color:#92400E;">
-      ⚠️ ไม่สามารถเชื่อมต่อระบบวิเคราะห์ (GAS) ได้ แสดงผลคำนวณพื้นฐานชั่วคราว — ข้อมูลรอบนี้ <strong>ยังไม่ถูกบันทึก</strong> กรุณาลองส่งใหม่อีกครั้งเมื่อเชื่อมต่อได้
-    </div>
-    <div class="ai-section">
-      <div class="ai-section-label">คำนวณคร่าวๆ (สูตรพื้นฐาน)</div>
-      <div class="ai-bubble">
-        Flow Top: ${payload.flowTop} → ${flowSuggestTop.toFixed(2)} L/hr<br>
-        Flow Bot: ${payload.flowBot} → ${flowSuggestBot.toFixed(2)} L/hr
-      </div>
-    </div>`;
-}
-
-function formatText(text) {
-  return text
-    .replace(/\n\n/g, '</p><p style="margin-top:8px">')
-    .replace(/\n/g, '<br>');
-}
-
-function closeAIPanel() {
-  document.getElementById('aiBackdrop').classList.remove('show');
-  document.getElementById('aiPanel').classList.remove('show');
-}
-
-function showLoading(msg) {
-  document.getElementById('loadingMsg').textContent = msg;
-  document.getElementById('loadingOverlay').classList.add('show');
-}
-function hideLoading() {
-  document.getElementById('loadingOverlay').classList.remove('show');
 }
 </script>
 </body>
