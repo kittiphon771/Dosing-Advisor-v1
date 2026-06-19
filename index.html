@@ -321,7 +321,7 @@
 
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
-const GAS_URL           = 'https://script.google.com/macros/s/AKfycbyHWrdj5IXEksXjN_DZp4M7gO0BvrcD1R9G0rFUhguK6pBJPmQf_-ORz8q5p9RxghDNSg/exec';
+const GAS_URL           = 'https://script.google.com/macros/s/AKfycbyUW3jDQkaytkd2f4tlCgq2d2W88Gx12HLrbjOuQgLMLi96ZVtr_pHtHm1IaBIfHElw8w/exec';
 const SG                = 1.08;
 const COBB_TARGET_TOP   = 52;
 const COBB_TARGET_BOT   = 107;
@@ -727,6 +727,8 @@ async function handleSubmit() {
     } else {
       // บันทึก flowSuggest รอบนี้ไว้เป็น Base ของรอบถัดไป
       savePrevFlowStd(currentMachine, currentType, result.calc.flowSuggestTop, result.calc.flowSuggestBot);
+      // ส่งสรุปผลกลับเข้า LINE Chat/Group โดยอัตโนมัติ (ไม่ต้องกดซ้ำ)
+      await sendSummaryToLine(payload, result);
       openAIPanel(payload, result);
     }
     document.getElementById('submitBtn').classList.remove('disabled');
@@ -734,6 +736,49 @@ async function handleSubmit() {
     hideLoading();
     openAIPanelFallback(payload);
     document.getElementById('submitBtn').classList.remove('disabled');
+  }
+}
+
+// ── สร้างข้อความสรุปสำหรับส่งเข้า LINE ──────────────────────────
+function buildLineSummaryText(payload, result) {
+  const calc   = result.calc;
+  const scaleSuggestTop = flowToScale(calc.flowSuggestTop, payload.machine, payload.sizingType, 'top');
+  const scaleSuggestBot = flowToScale(calc.flowSuggestBot, payload.machine, payload.sizingType, 'bot');
+  const scaleTopTxt = scaleSuggestTop !== null ? scaleSuggestTop.toFixed(1) : '—';
+  const scaleBotTxt = scaleSuggestBot !== null ? scaleSuggestBot.toFixed(1) : '—';
+  const std = STD[payload.sizingType];
+
+  const lines = [
+    '📊 ผลวิเคราะห์ Dosing ' + payload.machine + ' (' + std.label + ')',
+    '',
+    '🧪 Cobb Top: ' + payload.cobbTop + '  |  Bot: ' + payload.cobbBot,
+    '',
+    '🎛️ Scale แนะนำ',
+    'Top: ' + payload.scaleTop + ' → ' + scaleTopTxt + '  (' + calc.flowSuggestTop + ' L/hr)',
+    'Bot: ' + payload.scaleBot + ' → ' + scaleBotTxt + '  (' + calc.flowSuggestBot + ' L/hr)',
+    '',
+    '⚗️ Total: ' + calc.totalKgCurrent + ' → ' + calc.totalKgSuggest + ' Kg/ton (' + (calc.totalChange >= 0 ? '+' : '') + calc.totalChange + '%)',
+    calc.inStd ? '✅ อยู่ในเกณฑ์ Std' : '⚠️ นอกเกณฑ์ Std (' + std.min + '–' + std.max + ')',
+    '',
+    '👤 ' + (payload.displayName || 'Unknown')
+  ];
+  return lines.join('\n');
+}
+
+// ── ส่งสรุปผลกลับเข้า LINE Chat/Group ด้วย liff.sendMessages ────
+// ใช้ได้เฉพาะกรณีเปิดจาก Group/Room/1:1 chat (ไม่ใช่ External Browser หรือ Standalone)
+// ต้องเปิดสิทธิ์ chat_message.write ให้ LIFF App ใน LINE Developers Console ก่อน
+async function sendSummaryToLine(payload, result) {
+  try {
+    if (typeof liff === 'undefined' || !liff.isLoggedIn || !liff.isLoggedIn()) return;
+    if (!liff.isApiAvailable || !liff.isApiAvailable('shareTargetPicker')) {
+      // ยังเช็คต่อ เพราะ sendMessages ไม่ได้ผูกกับ shareTargetPicker เสมอไป — ลองส่งตรงเลย
+    }
+    const text = buildLineSummaryText(payload, result);
+    await liff.sendMessages([{ type: 'text', text: text }]);
+  } catch (e) {
+    // เงียบไว้ ไม่ block popup หลัก — กรณีเปิดจาก context ที่ไม่รองรับ sendMessages (เช่น External Browser)
+    console.warn('sendSummaryToLine failed:', e);
   }
 }
 
