@@ -742,8 +742,9 @@ async function sendSummaryToLine(flexMessage) {
     renderLineShareBanner('sent', '✅ ส่งผลวิเคราะห์เข้าแชทแล้ว');
   } catch (e) {
     console.warn('sendSummaryToLine failed:', e);
-    // ผู้ใช้กดยกเลิก popup ยืนยัน หรือเกิด error อื่นจาก LIFF SDK
-    renderLineShareBanner('failed', '⚠️ ส่งเข้าแชทไม่สำเร็จ (อาจกดยกเลิก popup ยืนยัน) — กดปุ่มเพื่อลองส่งใหม่');
+    // โชว์ error จริงออกมาเลย เพื่อ debug ได้ตรงจุด (เช่น "Forbidden", scope ไม่ครบ ฯลฯ)
+    const detail = (e && e.message) ? e.message : String(e);
+    renderLineShareBanner('failed', '⚠️ ส่งเข้าแชทไม่สำเร็จ: ' + detail + ' — กดปุ่มเพื่อลองส่งใหม่');
   }
 }
 
