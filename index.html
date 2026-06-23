@@ -143,6 +143,13 @@
   .ai-bubble { background: #F8F9FF; border: 1px solid #E0E3FF; border-radius: 12px; padding: 12px 14px; font-size: 13px; line-height: 1.7; color: #1F2937; }
   .ai-bubble.ok   { background: #ECFDF5; border-color: #A7F3D0; }
   .ai-bubble.warn { background: #FFFBEB; border-color: #FDE68A; }
+
+  /* ── LINE share status banner (ใหม่) ── */
+  .line-share-banner { display: flex; align-items: center; gap: 8px; border-radius: 10px; padding: 10px 12px; font-size: 12px; margin-bottom: 14px; }
+  .line-share-banner.sent    { background: #ECFDF5; border: 1px solid #A7F3D0; color: #065F46; }
+  .line-share-banner.skipped { background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E; }
+  .line-share-banner.failed  { background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; }
+  .btn-resend-line { margin-left: auto; flex-shrink: 0; background: rgba(255,255,255,0.6); border: 1px solid currentColor; border-radius: 8px; padding: 4px 10px; font-size: 11px; font-weight: 600; cursor: pointer; color: inherit; }
 </style>
 </head>
 <body>
@@ -290,7 +297,7 @@
 
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
-const GAS_URL           = 'https://script.google.com/macros/s/AKfycbx6orziEoYP7cVFloV7b5b9dUWwdMQkxeCNoMPzLDmdW9KWGJjztPIWEdePLjqN0xi1pA/exec';
+const GAS_URL           = 'https://script.google.com/macros/s/AKfycbxdzqPQ6k0UVYofTteTkgDz2IgEfesZYnDLscZN1MEosbTD8fLrljDkwzqcij6dAo079A/exec';
 const SG                = 1.08;
 const COBB_TARGET_TOP   = 52;
 const COBB_TARGET_BOT   = 107;
@@ -427,6 +434,7 @@ let liffGroupId     = '';
 let machineIsLocked = false;
 let currentType     = 'internal';
 let currentMachine  = 'PM2';
+let lastFlexMessage  = null;   // เก็บ Flex Message JSON ล่าสุดจาก server ไว้ใช้กดส่งซ้ำได้ (ปุ่ม "ส่งเข้ากลุ่มอีกครั้ง")
 
 function setMachine(m) {
   currentMachine = m;
@@ -691,8 +699,12 @@ async function handleSubmit() {
       openAIPanelFallback(payload);
     } else {
       savePrevFlowStd(currentMachine, currentType, result.calc.flowSuggestTop, result.calc.flowSuggestBot);
-      await sendSummaryToLine(payload, result);
+      lastFlexMessage = result.flexMessage || null;
       openAIPanel(payload, result);
+      // ส่งเข้ากลุ่ม LINE ผ่าน liff.sendMessages() — ไม่ใช่ push API
+      // วิธีนี้ "ฟรีตลอด" ไม่มีโควต้ารายเดือน เพราะถือเป็นการส่งในนามผู้ใช้เอง
+      // ผ่าน LIFF แต่ผู้ใช้จะเห็น popup ยืนยันก่อนส่งทุกครั้ง (เป็นข้อจำกัดของ LIFF API เอง)
+      sendSummaryToLine(result.flexMessage);
     }
     document.getElementById('submitBtn').classList.remove('disabled');
   } catch(e) {
@@ -702,41 +714,57 @@ async function handleSubmit() {
   }
 }
 
-function buildLineSummaryText(payload, result) {
-  const calc   = result.calc;
-  const scaleSuggestTop = flowToScale(calc.flowSuggestTop, payload.machine, payload.sizingType, 'top');
-  const scaleSuggestBot = flowToScale(calc.flowSuggestBot, payload.machine, payload.sizingType, 'bot');
-  const scaleTopTxt = scaleSuggestTop !== null ? scaleSuggestTop.toFixed(1) : '—';
-  const scaleBotTxt = scaleSuggestBot !== null ? scaleSuggestBot.toFixed(1) : '—';
-  const std = STD[payload.sizingType];
+// ส่ง Flex Message เข้าแชท/กลุ่มที่เปิด LIFF อยู่ ผ่าน liff.sendMessages()
+// ข้อดี: ฟรีไม่จำกัดจำนวนครั้ง ไม่ติดโควต้า Push Message รายเดือนของ LINE OA
+// ข้อจำกัด: ใช้ได้เฉพาะตอนเปิดผ่าน LIFF ที่อยู่ใน context ของแชท/กลุ่มนั้นจริงๆ
+// (ใช้ไม่ได้ถ้าเปิดจากเบราว์เซอร์ทั่วไปที่ไม่ผ่าน LINE) และ LINE จะเด้ง popup
+// ให้ผู้ใช้กดยืนยันก่อนส่งเสมอ — เป็นพฤติกรรมของ LIFF API เอง ไม่ใช่ bug
+async function sendSummaryToLine(flexMessage) {
+  if (!flexMessage) return;
 
-  const lines = [
-    '📊 ผลวิเคราะห์ Dosing ' + payload.machine + ' (' + std.label + ')',
-    '',
-    '🧪 Cobb Top: ' + payload.cobbTop + '  |  Bot: ' + payload.cobbBot,
-    '',
-    '🎛️ Scale แนะนำ',
-    'Top: ' + payload.scaleTop + ' → ' + scaleTopTxt + '  (' + calc.flowSuggestTop + ' L/hr)',
-    'Bot: ' + payload.scaleBot + ' → ' + scaleBotTxt + '  (' + calc.flowSuggestBot + ' L/hr)',
-    '',
-    '⚗️ Total: ' + calc.totalKgCurrent + ' → ' + calc.totalKgSuggest + ' Kg/ton (' + (calc.totalChange >= 0 ? '+' : '') + calc.totalChange + '%)',
-    calc.inStd ? '✅ อยู่ในเกณฑ์ Std' : '⚠️ นอกเกณฑ์ Std (' + std.min + '–' + std.max + ')',
-    '',
-    '👤 ' + (payload.displayName || 'Unknown')
-  ];
-  return lines.join('\n');
-}
+  const banner = document.getElementById('lineShareBanner');
 
-async function sendSummaryToLine(payload, result) {
   try {
-    if (typeof liff === 'undefined' || !liff.isLoggedIn || !liff.isLoggedIn()) return;
-    if (!liff.isApiAvailable || !liff.isApiAvailable('shareTargetPicker')) {
+    if (typeof liff === 'undefined' || !liff.isLoggedIn || !liff.isLoggedIn()) {
+      renderLineShareBanner('skipped', 'ยังไม่ได้ล็อกอิน LINE — ไม่สามารถส่งเข้ากลุ่มอัตโนมัติได้');
+      return;
     }
-    const text = buildLineSummaryText(payload, result);
-    await liff.sendMessages([{ type: 'text', text: text }]);
+    if (!liff.isInClient || !liff.isInClient()) {
+      renderLineShareBanner('skipped', 'เปิดจากเบราว์เซอร์ปกติ ไม่ใช่ใน LINE App — ส่งเข้าแชทไม่ได้ กรุณาเปิดผ่าน LINE');
+      return;
+    }
+    if (!liff.sendMessages) {
+      renderLineShareBanner('skipped', 'LIFF เวอร์ชันนี้ไม่รองรับ sendMessages');
+      return;
+    }
+
+    await liff.sendMessages([flexMessage]);
+    renderLineShareBanner('sent', '✅ ส่งผลวิเคราะห์เข้าแชทแล้ว');
   } catch (e) {
     console.warn('sendSummaryToLine failed:', e);
+    // ผู้ใช้กดยกเลิก popup ยืนยัน หรือเกิด error อื่นจาก LIFF SDK
+    renderLineShareBanner('failed', '⚠️ ส่งเข้าแชทไม่สำเร็จ (อาจกดยกเลิก popup ยืนยัน) — กดปุ่มเพื่อลองส่งใหม่');
   }
+}
+
+function renderLineShareBanner(state, msg) {
+  const aiContent = document.getElementById('aiContent');
+  if (!aiContent) return;
+  let banner = document.getElementById('lineShareBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'lineShareBanner';
+    aiContent.prepend(banner);
+  }
+  banner.className = 'line-share-banner ' + state;
+  const showRetry = state === 'failed' || state === 'skipped';
+  banner.innerHTML = '<span>' + msg + '</span>' +
+    (showRetry ? '<button class="btn-resend-line" onclick="retryResendLine()">ลองส่งใหม่</button>' : '');
+}
+
+function retryResendLine() {
+  if (!lastFlexMessage) return;
+  sendSummaryToLine(lastFlexMessage);
 }
 
 function openAIPanel(payload, result) {
@@ -809,6 +837,9 @@ function openAIPanel(payload, result) {
     </div>
 
     <button class="btn-delete-entry" onclick="openHistoryPanel('${payload.machine}','${payload.sizingType}')">🗑️ ดู/ลบรายการล่าสุด (คีย์ Scale ผิด)</button>`;
+
+  // แสดง banner สถานะการส่ง LINE ทันที (เริ่มที่ "กำลังส่ง..." แล้ว sendSummaryToLine จะอัปเดตทับ)
+  renderLineShareBanner('skipped', '📤 กำลังส่งเข้าแชท LINE...');
 }
 
 async function openHistoryPanel(machine, sizingType) {
