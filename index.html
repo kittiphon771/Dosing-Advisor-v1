@@ -20,8 +20,7 @@
 
   .type-toggle-wrap { padding: 10px 16px 0; }
   .type-toggle { display: grid; grid-template-columns: 1fr 1fr; background: white; border-radius: 12px; padding: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); gap: 4px; }
-  .grade-label-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 6px; }
-  .grade-label { font-size: 10px; color: #6B7280; text-align: center; line-height: 1.3; padding: 0 4px; }
+  .grade-info-row { display: flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 10px; color: #9CA3AF; cursor: pointer; padding: 2px 4px; }
   .type-btn { padding: 12px 8px; border: none; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: #6B7280; display: flex; flex-direction: column; align-items: center; gap: 3px; }
   .type-btn .icon { font-size: 20px; }
   .type-btn .std  { font-size: 10px; font-weight: 400; color: #9CA3AF; }
@@ -54,38 +53,27 @@
   .card-prominent.green  { border-color: #2d9e5f; }
   .card-prominent.green  .card-header { background: #1a6b3c; color: #fff; }
   .card-prominent.green  .card-header .req-badge { color: #1a6b3c; }
-  .card-prominent.blue   { border-color: #2563EB; }
-  .card-prominent.blue   .card-header { background: #1D4ED8; color: #fff; }
-  .card-prominent.blue   .card-header .req-badge { color: #1D4ED8; }
   .card-prominent input[type="number"] { border-width: 2px; font-size: 17px; font-weight: 600; padding: 12px 12px; }
+
+  .sub-section { border-top: 1px solid #E5E7EB; padding-top: 12px; margin-top: 4px; }
+  .sub-section-label { font-size: 12px; font-weight: 700; color: #1D4ED8; display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
 
   /* ── Compact + muted card: ข้อมูลเครื่องจักร (ข้อมูลรองที่มักล็อกไว้แล้ว) ── */
   .card-compact { box-shadow: none; border: 1px solid #E5E7EB; background: #FAFAFA; }
-  .card-compact .card-header { background: #F3F4F6; border-left-color: #9CA3AF; color: #6B7280; padding: 7px 12px; font-size: 11px; }
+  .machine-summary-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; font-size: 11px; color: #6B7280; cursor: pointer; }
   .card-compact .card-body { padding: 10px 12px; }
   .card-compact label { color: #6B7280; font-size: 11px; }
   .card-compact .row-2 { gap: 8px; }
   .card-compact input[type="number"] { padding: 7px 10px; font-size: 14px; border-color: #E5E7EB; color: #4B5563; background: #fff; }
   .card-compact input[type="number"]:focus { border-color: #9CA3AF; box-shadow: 0 0 0 3px rgba(156,163,175,0.15); }
   .card-compact .hint { font-size: 10px; }
-  .card-compact .saved-banner { padding: 6px 10px; font-size: 11px; }
-  .card-compact .btn-edit { padding: 4px 10px; font-size: 11px; }
 
   /* Scale display sub-label */
   .scale-flow-hint { font-size: 11px; color: #6B7280; margin-top: 3px; font-style: italic; min-height: 16px; }
   .scale-flow-hint.ready { color: #059669; font-style: normal; font-weight: 500; }
 
-  .saved-banner { display: none; align-items: center; justify-content: space-between; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; color: #92400E; gap: 8px; }
-  .saved-banner.show { display: flex; }
-  .saved-banner .info { display: flex; align-items: center; gap: 6px; }
-  .btn-edit { background: #D97706; color: #fff; border: none; border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
-  .btn-edit:active { background: #B45309; }
-
   .btn-delete-entry { display: block; width: 100%; margin-top: 16px; background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; border-radius: 8px; padding: 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
   .btn-delete-entry:active { background: #FEE2E2; }
-
-  .history-link-row { text-align: right; margin: -6px 0 10px; }
-  .btn-history-link { background: none; border: none; color: #6B7280; font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px; text-decoration: underline; }
 
   .history-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #F3F4F6; }
   .history-row:last-child { border-bottom: none; }
@@ -96,11 +84,10 @@
   .btn-history-delete:active { background: #FEE2E2; }
   .btn-history-delete:disabled { opacity: 0.5; }
 
-  .status-bar { display: flex; gap: 8px; margin-bottom: 14px; }
-  .status-pill { flex: 1; background: white; border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-  .status-pill .val { font-size: 18px; font-weight: 700; color: #1a6b3c; font-variant-numeric: tabular-nums; }
-  .status-pill .val.blue { color: #2563EB; }
-  .status-pill .lbl { font-size: 10px; color: #6B7280; margin-top: 2px; }
+  /* ── Status row: รวมเป็นบรรทัดเดียว แทน status-bar การ์ด 3 ใบ ── */
+  .status-line { display: flex; align-items: center; gap: 10px; font-size: 12px; color: #6B7280; margin-bottom: 10px; flex-wrap: wrap; }
+  .status-line b { color: #111827; font-weight: 600; }
+  .status-line .btn-history-link { margin-left: auto; background: none; border: none; color: #6B7280; font-size: 11px; font-weight: 600; cursor: pointer; padding: 2px; text-decoration: underline; }
 
   .std-warning { display: none; align-items: center; gap: 8px; background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 12px; color: #92400E; }
   .std-warning.show { display: flex; }
@@ -193,33 +180,19 @@
       <span class="std">Std: 1.7–2.5 Kg/ton</span>
     </button>
   </div>
-  <div class="grade-label-row">
-    <div class="grade-label">เกรด: KI ทุกเกรด, KA125, KA150</div>
-    <div class="grade-label">เกรด: KT, KF ทุกเกรด, KA185, KA230</div>
+  <div class="grade-info-row" id="gradeInfoRow" onclick="toggleGradeInfo()">
+    <span>ℹ️</span><span id="gradeInfoText">เกรด: KI ทุกเกรด, KA125, KA150 — แตะดูเพิ่มเติม</span>
   </div>
 </div>
 
 <div class="content">
 
-  <!-- Status Bar -->
-  <div class="status-bar">
-    <div class="status-pill">
-      <div class="val" id="prevKgTop">—</div>
-      <div class="lbl">Kg/ton Top</div>
-    </div>
-    <div class="status-pill">
-      <div class="val" id="prevKgBot">—</div>
-      <div class="lbl">Kg/ton Bot</div>
-    </div>
-    <div class="status-pill">
-      <div class="val" id="prevTotal">—</div>
-      <div class="lbl">Total Kg/ton</div>
-    </div>
-  </div>
-
-  <!-- History / Delete link -->
-  <div class="history-link-row">
-    <button class="btn-history-link" onclick="openHistoryPanel()">📜 ดู/ลบ 5 รายการล่าสุด</button>
+  <!-- Status line (รวมจาก status-bar เดิม) -->
+  <div class="status-line">
+    <span>Top <b id="prevKgTop">—</b></span>
+    <span>Bot <b id="prevKgBot">—</b></span>
+    <span>Total <b id="prevTotal">—</b> Kg/ton</span>
+    <button class="btn-history-link" onclick="openHistoryPanel()">📜 ประวัติ</button>
   </div>
 
   <!-- Std Warning -->
@@ -231,7 +204,7 @@
     </div>
   </div>
 
-  <!-- Cobb -->
+  <!-- Cobb + Scale (รวมเป็นการ์ดเดียว) -->
   <div class="card card-prominent green">
     <div class="card-header" id="cobbHeader">🧪 ค่า Cobb ที่วัดได้<span class="req-badge">กรอกทุกครั้ง</span></div>
     <div class="card-body">
@@ -247,38 +220,34 @@
           <span class="err-msg" id="errCobbBot">กรุณากรอกค่า 10–300</span>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Scale ปั๊ม (แทน Flow) -->
-  <div class="card card-prominent blue">
-    <div class="card-header blue">🎛️ Scale ปั๊มปัจจุบัน<span class="req-badge">กรอกทุกครั้ง</span><span id="curveStatus" style="font-size:10px;font-weight:400;width:100%;flex-basis:100%;color:rgba(255,255,255,0.85) !important;margin-top:2px;"></span></div>
-    <div class="card-body">
-      <div class="row-2">
-        <div class="field">
-          <label>Scale Top</label>
-          <input type="number" id="scaleTop" inputmode="decimal" placeholder="เช่น 8" class="blue" oninput="onScaleInput()">
-          <div class="scale-flow-hint" id="hintTop">Flow จะแสดงเมื่อกรอกค่า</div>
-          <span class="err-msg" id="errScaleTop">กรุณากรอก > 0</span>
-        </div>
-        <div class="field">
-          <label>Scale Bot</label>
-          <input type="number" id="scaleBot" inputmode="decimal" placeholder="เช่น 8" class="blue" oninput="onScaleInput()">
-          <div class="scale-flow-hint" id="hintBot">Flow จะแสดงเมื่อกรอกค่า</div>
-          <span class="err-msg" id="errScaleBot">กรุณากรอก > 0</span>
+      <div class="sub-section">
+        <div class="sub-section-label">🎛️ Scale ปั๊มปัจจุบัน <span id="curveStatus" style="font-size:10px;font-weight:400;color:#6B7280;margin-left:auto;"></span></div>
+        <div class="row-2">
+          <div class="field">
+            <label>Scale Top</label>
+            <input type="number" id="scaleTop" inputmode="decimal" placeholder="เช่น 8" class="blue" oninput="onScaleInput()">
+            <div class="scale-flow-hint" id="hintTop">Flow จะแสดงเมื่อกรอกค่า</div>
+            <span class="err-msg" id="errScaleTop">กรุณากรอก > 0</span>
+          </div>
+          <div class="field">
+            <label>Scale Bot</label>
+            <input type="number" id="scaleBot" inputmode="decimal" placeholder="เช่น 8" class="blue" oninput="onScaleInput()">
+            <div class="scale-flow-hint" id="hintBot">Flow จะแสดงเมื่อกรอกค่า</div>
+            <span class="err-msg" id="errScaleBot">กรุณากรอก > 0</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Machine -->
-  <div class="card card-compact">
-    <div class="card-header">⚙️ ข้อมูลเครื่องจักร</div>
-    <div class="card-body" style="display:flex;flex-direction:column;gap:8px;">
-      <div class="saved-banner" id="savedBanner">
-        <div class="info"><span>💾</span><span id="savedBannerMsg">ใช้ค่าเดิมจากการบันทึกล่าสุด</span></div>
-        <button class="btn-edit" onclick="unlockMachine()">✏️ แก้ไข</button>
-      </div>
+  <!-- Machine (collapsed summary เมื่อ locked, ขยายเมื่อแก้ไข) -->
+  <div class="card card-compact" id="machineCard">
+    <div class="machine-summary-row" id="machineSummaryRow" onclick="unlockMachine()" style="display:none;">
+      <span id="machineSummaryText">⚙️ PM2: speed — · gsm — · width —</span>
+      <span>✏️</span>
+    </div>
+    <div class="card-body" id="machineBody">
       <div class="row-2">
         <div class="field">
           <label>Speed (m/min)</label>
@@ -291,7 +260,7 @@
           <span class="err-msg" id="errGsm">กรุณากรอก > 0</span>
         </div>
       </div>
-      <div class="field">
+      <div class="field" style="margin-top:8px;">
         <label>Width (m)</label>
         <input type="number" id="width" inputmode="decimal" placeholder="เช่น 2.5" oninput="updatePreview()">
         <span class="err-msg" id="errWidth">กรุณากรอก > 0</span>
@@ -321,19 +290,24 @@
 
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
-const GAS_URL           = 'https://script.google.com/macros/s/AKfycby5GAP1GPYqyN2Ie9OkdgHCVIrOmOERLa1Mo52GRh2T9hmF4Aahg5T4NW9OvLSO4-EJOg/exec';
+const GAS_URL           = 'https://script.google.com/macros/s/AKfycbzWU-jIUrFtiJ8MfmMtX3NrVojzinZD3xagg5ecSRBFZf5VhiwkUxH_GHxu415TnXkjnw/exec';
 const SG                = 1.08;
 const COBB_TARGET_TOP   = 52;
 const COBB_TARGET_BOT   = 107;
 const COBB_TOLERANCE    = 5;
 const STORAGE_TYPE_KEY    = 'dosing_sizing_type';
 const STORAGE_MACHINE_KEY = 'dosing_machine_select';
-// เก็บ flowSuggest รอบล่าสุดต่อ groupKey ไว้ใน localStorage
-// เพื่อใช้เป็น Base Flow ในการปรับรอบถัดไป (Cobb-Based Adjustment)
 function flowStdStorageKey(machine, type) { return 'dosing_flow_std_' + machine + '_' + type; }
 function machineStorageKey(m) { return 'dosing_machine_params_' + (m || currentMachine); }
 
-// ── Cobb-Based Adjustment Config (ต้องตรงกับ GAS COBB_ADJ) ────
+const GRADE_INFO = {
+  internal: 'เกรด: KI ทุกเกรด, KA125, KA150',
+  surface:  'เกรด: KT, KF ทุกเกรด, KA185, KA230'
+};
+function toggleGradeInfo() {
+  document.getElementById('gradeInfoText').textContent = GRADE_INFO[currentType];
+}
+
 const COBB_ADJ = {
   top: { hardLow: 35,  hardHigh: 100, hardPct: 0.30, maxPct: 0.45 },
   bot: { hardLow: 50,  hardHigh: 200, hardPct: 0.30, maxPct: 0.45 }
@@ -375,7 +349,6 @@ function calcCobbFlowSuggest(flowBase, cobbMeasured, cobbTarget, side) {
   return { flowSuggest, adj: { ...adj, actualAdjPct, wasCapped } };
 }
 
-// โหลด/บันทึก prevFlowStd จาก localStorage
 function loadPrevFlowStd(machine, type) {
   try {
     const s = localStorage.getItem(flowStdStorageKey(machine, type));
@@ -392,42 +365,32 @@ const STD = {
   surface:  { min: 1.7, max: 2.5, label: 'Surface Sizing'  }
 };
 
-// ── Pump Calibration Curves ────────────────────────────────────
-// groupKey = machine_sizingType_side  เช่น PM2_surface_top
-// curveType: 'linear' → Flow = a*Scale + b
-//            'power'  → Flow = a * Scale^b
-// ค่าด้านล่างนี้คือ "ค่า fallback" เผื่อเรียก GAS ไม่ได้เท่านั้น
-// ค่าจริงที่ใช้งานจะถูกดึงจาก Google Sheet ผ่าน loadPumpCurves() ตอนเปิดแอป
-// แก้ค่า calibrate ได้ที่ Sheet 'PumpCurves' โดยตรง ไม่ต้องแก้โค้ดตรงนี้
-// อัปเดต (Re-calibrate): ปรับจากข้อมูลวัดจริง Volume/Time รอบใหม่ — surface PM2/PM3 fit ใหม่ทั้งคู่เป็น power curve
 let PUMP_CURVES = {
   'PM2_surface_top': { type: 'power',  a: 0.2296, b: 1.4796 },
   'PM2_surface_bot': { type: 'power',  a: 0.017,  b: 2.1743 },
   'PM3_surface_top': { type: 'power',  a: 0.257,  b: 1.1067 },
   'PM3_surface_bot': { type: 'power',  a: 1.2472, b: 0.9015 },
-  // Internal — สำรองไว้ (ยังใช้ baseline linear ชั่วคราว ยังไม่มีข้อมูล calibrate จริง)
   'PM2_internal_top': { type: 'linear', a: 0.855, b: -1.54 },
   'PM2_internal_bot': { type: 'linear', a: 0.417, b: -1.43 },
   'PM3_internal_top': { type: 'linear', a: 0.395, b: -0.81 },
   'PM3_internal_bot': { type: 'linear', a: 0.928, b:  0.63 },
 };
 
-let pumpCurvesSource = 'fallback'; // 'fallback' | 'sheet'
+let pumpCurvesSource = 'fallback';
 
-// ── โหลดค่า Calibrate ปั๊มจาก Google Sheet ───────────────────────
 async function loadPumpCurves() {
   try {
     const resp = await fetch(GAS_URL + '?action=getPumpCurves', { method: 'GET' });
     const result = await resp.json();
     if (result && result.curves && Object.keys(result.curves).length > 0) {
-      Object.assign(PUMP_CURVES, result.curves); // ทับค่า fallback ด้วยค่าจริงจาก Sheet
+      Object.assign(PUMP_CURVES, result.curves);
       pumpCurvesSource = 'sheet';
     }
   } catch (e) {
     pumpCurvesSource = 'fallback';
   }
   updateCurveStatusBadge();
-  onScaleInput(); // คำนวณ Flow ใหม่ด้วยค่า curve ล่าสุด เผื่อผู้ใช้กรอก Scale ไว้ก่อนโหลดเสร็จ
+  onScaleInput();
 }
 
 function updateCurveStatusBadge() {
@@ -435,10 +398,10 @@ function updateCurveStatusBadge() {
   if (!el) return;
   if (pumpCurvesSource === 'sheet') {
     el.textContent = '✓ Calibrate จาก Sheet';
-    el.style.color = '#BBF7D0';
+    el.style.color = '#059669';
   } else {
-    el.textContent = '⚠️ ใช้ค่า Calibrate สำรอง (เชื่อม Sheet ไม่ได้)';
-    el.style.color = '#FDE68A';
+    el.textContent = '⚠️ ค่าสำรอง';
+    el.style.color = '#D97706';
   }
 }
 
@@ -447,7 +410,7 @@ function scaleToFlow(scale, machine, sizingType, side) {
   const c = PUMP_CURVES[key];
   if (!c || isNaN(scale) || scale <= 0) return null;
   if (c.type === 'power') return c.a * Math.pow(scale, c.b);
-  return c.a * scale + c.b; // linear
+  return c.a * scale + c.b;
 }
 
 function flowToScale(flow, machine, sizingType, side) {
@@ -455,7 +418,7 @@ function flowToScale(flow, machine, sizingType, side) {
   const c = PUMP_CURVES[key];
   if (!c || isNaN(flow) || flow <= 0) return null;
   if (c.type === 'power') return Math.pow(flow / c.a, 1 / c.b);
-  return (flow - c.b) / c.a; // linear
+  return (flow - c.b) / c.a;
 }
 
 let liffUserId      = '';
@@ -465,13 +428,12 @@ let machineIsLocked = false;
 let currentType     = 'internal';
 let currentMachine  = 'PM2';
 
-// ── Machine / Type ─────────────────────────────────────────────
 function setMachine(m) {
   currentMachine = m;
   try { localStorage.setItem(STORAGE_MACHINE_KEY, m); } catch(e) {}
   document.getElementById('btnPM2').className = 'machine-btn' + (m === 'PM2' ? ' active' : '');
   document.getElementById('btnPM3').className = 'machine-btn' + (m === 'PM3' ? ' active' : '');
-  loadSavedMachine(m);   // โหลดค่าของเครื่องที่เลือกใหม่
+  loadSavedMachine(m);
   onScaleInput();
 }
 
@@ -495,6 +457,7 @@ function setSizingType(type) {
   document.getElementById('btnInternal').className = 'type-btn' + (type === 'internal' ? ' active-internal' : '');
   document.getElementById('btnSurface').className  = 'type-btn' + (type === 'surface'  ? ' active-surface'  : '');
   document.getElementById('submitBtn').classList.toggle('surface-mode', type === 'surface');
+  document.getElementById('gradeInfoText').textContent = GRADE_INFO[type] + ' — แตะดูเพิ่มเติม';
   onScaleInput();
 }
 
@@ -505,7 +468,6 @@ function loadSavedType() {
   } catch(e) { setSizingType('internal'); }
 }
 
-// ── Scale input → show converted Flow hint ─────────────────────
 function onScaleInput() {
   const sTop = parseFloat(document.getElementById('scaleTop').value);
   const sBot = parseFloat(document.getElementById('scaleBot').value);
@@ -535,24 +497,31 @@ function onScaleInput() {
   updatePreview();
 }
 
-// ── Machine params localStorage ────────────────────────────────
+function updateMachineSummary() {
+  const speed = document.getElementById('speed').value || '—';
+  const gsm   = document.getElementById('gsm').value || '—';
+  const width = document.getElementById('width').value || '—';
+  document.getElementById('machineSummaryText').textContent =
+    '⚙️ ' + currentMachine + ': speed ' + speed + ' · gsm ' + gsm + ' · width ' + width;
+}
+
 function loadSavedMachine(m) {
   m = m || currentMachine;
-  // ล้างค่าเก่าออกก่อนเสมอ เพื่อไม่ให้ค่า PM เดิมค้างอยู่
   document.getElementById('speed').value = '';
   document.getElementById('gsm').value   = '';
   document.getElementById('width').value = '';
-  document.getElementById('savedBanner').classList.remove('show');
   machineIsLocked = false;
   ['speed','gsm','width'].forEach(function(id) {
     document.getElementById(id).classList.remove('locked');
   });
+  document.getElementById('machineBody').style.display = '';
+  document.getElementById('machineSummaryRow').style.display = 'none';
 
   try {
     const saved = localStorage.getItem(machineStorageKey(m));
-    if (!saved) return;
+    if (!saved) { updatePreview(); return; }
     const { speed, gsm, width } = JSON.parse(saved);
-    if (!speed || !gsm || !width) return;
+    if (!speed || !gsm || !width) { updatePreview(); return; }
     document.getElementById('speed').value = speed;
     document.getElementById('gsm').value   = gsm;
     document.getElementById('width').value = width;
@@ -566,8 +535,9 @@ function lockMachine() {
   ['speed','gsm','width'].forEach(function(id) {
     document.getElementById(id).classList.add('locked');
   });
-  document.getElementById('savedBannerMsg').textContent = 'ใช้ค่าเดิมของ ' + currentMachine + ' จากการบันทึกล่าสุด';
-  document.getElementById('savedBanner').classList.add('show');
+  updateMachineSummary();
+  document.getElementById('machineBody').style.display = 'none';
+  document.getElementById('machineSummaryRow').style.display = 'flex';
   updatePreview();
 }
 
@@ -576,7 +546,8 @@ function unlockMachine() {
   ['speed','gsm','width'].forEach(function(id) {
     document.getElementById(id).classList.remove('locked');
   });
-  document.getElementById('savedBanner').classList.remove('show');
+  document.getElementById('machineSummaryRow').style.display = 'none';
+  document.getElementById('machineBody').style.display = '';
   document.getElementById('speed').focus();
 }
 
@@ -584,7 +555,6 @@ function saveMachineParams(speed, gsm, width) {
   try { localStorage.setItem(machineStorageKey(currentMachine), JSON.stringify({ speed, gsm, width })); } catch(e) {}
 }
 
-// ── Calculations ───────────────────────────────────────────────
 function calcKgTon(flow, speed, width, gsm) {
   if (!flow || !speed || !width || !gsm) return null;
   return (flow * 60 * SG) / (speed * width * gsm * 0.001);
@@ -609,7 +579,8 @@ function updatePreview() {
   const total = (kgTop && kgBot) ? kgTop + kgBot : null;
   document.getElementById('prevTotal').textContent = total ? total.toFixed(2) : '—';
 
-  // Std warning
+  if (document.getElementById('machineSummaryRow').style.display === 'flex') updateMachineSummary();
+
   const warn = document.getElementById('stdWarning');
   const warnMsg = document.getElementById('stdWarningMsg');
   if (total) {
@@ -628,11 +599,9 @@ function updatePreview() {
   }
 }
 
-// ── Validation ─────────────────────────────────────────────────
 function validate() {
   let valid = true;
 
-  // Cobb fields
   [
     { id: 'cobbTop', errId: 'errCobbTop', min: 10, max: 200 },
     { id: 'cobbBot', errId: 'errCobbBot', min: 10, max: 300 },
@@ -646,7 +615,6 @@ function validate() {
     if (!ok) valid = false;
   });
 
-  // Scale fields
   [
     { id: 'scaleTop', errId: 'errScaleTop' },
     { id: 'scaleBot', errId: 'errScaleBot' },
@@ -660,7 +628,6 @@ function validate() {
     if (!ok) valid = false;
   });
 
-  // Machine fields
   [
     { id: 'speed', errId: 'errSpeed', min: 1 },
     { id: 'gsm',   errId: 'errGsm',   min: 1 },
@@ -678,7 +645,6 @@ function validate() {
   return valid;
 }
 
-// ── Submit ─────────────────────────────────────────────────────
 async function handleSubmit() {
   if (!validate()) return;
 
@@ -690,7 +656,6 @@ async function handleSubmit() {
   const gsm      = parseFloat(document.getElementById('gsm').value);
   const width    = parseFloat(document.getElementById('width').value);
 
-  // แปลง Scale → Flow ก่อนส่ง GAS
   const flowTop = scaleToFlow(scaleTop, currentMachine, currentType, 'top');
   const flowBot = scaleToFlow(scaleBot, currentMachine, currentType, 'bot');
 
@@ -706,8 +671,8 @@ async function handleSubmit() {
     sizingTypeLabel: std.label,
     stdMin: std.min, stdMax: std.max,
     cobbTop, cobbBot,
-    scaleTop, scaleBot,   // ← ส่ง Scale จริงไปด้วย เพื่อบันทึกประวัติ
-    flowTop, flowBot,     // ← flow ที่แปลงแล้ว ใช้คำนวณ Kg/ton
+    scaleTop, scaleBot,
+    flowTop, flowBot,
     speed, gsm, width,
     cobbTargetTop: COBB_TARGET_TOP, cobbTargetBot: COBB_TARGET_BOT,
     sg: SG
@@ -725,9 +690,7 @@ async function handleSubmit() {
       alert('❌ เกิดข้อผิดพลาด: ' + result.error);
       openAIPanelFallback(payload);
     } else {
-      // บันทึก flowSuggest รอบนี้ไว้เป็น Base ของรอบถัดไป
       savePrevFlowStd(currentMachine, currentType, result.calc.flowSuggestTop, result.calc.flowSuggestBot);
-      // ส่งสรุปผลกลับเข้า LINE Chat/Group โดยอัตโนมัติ (ไม่ต้องกดซ้ำ)
       await sendSummaryToLine(payload, result);
       openAIPanel(payload, result);
     }
@@ -739,7 +702,6 @@ async function handleSubmit() {
   }
 }
 
-// ── สร้างข้อความสรุปสำหรับส่งเข้า LINE ──────────────────────────
 function buildLineSummaryText(payload, result) {
   const calc   = result.calc;
   const scaleSuggestTop = flowToScale(calc.flowSuggestTop, payload.machine, payload.sizingType, 'top');
@@ -765,24 +727,18 @@ function buildLineSummaryText(payload, result) {
   return lines.join('\n');
 }
 
-// ── ส่งสรุปผลกลับเข้า LINE Chat/Group ด้วย liff.sendMessages ────
-// ใช้ได้เฉพาะกรณีเปิดจาก Group/Room/1:1 chat (ไม่ใช่ External Browser หรือ Standalone)
-// ต้องเปิดสิทธิ์ chat_message.write ให้ LIFF App ใน LINE Developers Console ก่อน
 async function sendSummaryToLine(payload, result) {
   try {
     if (typeof liff === 'undefined' || !liff.isLoggedIn || !liff.isLoggedIn()) return;
     if (!liff.isApiAvailable || !liff.isApiAvailable('shareTargetPicker')) {
-      // ยังเช็คต่อ เพราะ sendMessages ไม่ได้ผูกกับ shareTargetPicker เสมอไป — ลองส่งตรงเลย
     }
     const text = buildLineSummaryText(payload, result);
     await liff.sendMessages([{ type: 'text', text: text }]);
   } catch (e) {
-    // เงียบไว้ ไม่ block popup หลัก — กรณีเปิดจาก context ที่ไม่รองรับ sendMessages (เช่น External Browser)
     console.warn('sendSummaryToLine failed:', e);
   }
 }
 
-// ── AI Panel ───────────────────────────────────────────────────
 function openAIPanel(payload, result) {
   document.getElementById('aiBackdrop').classList.add('show');
   document.getElementById('aiPanel').classList.add('show');
@@ -790,7 +746,6 @@ function openAIPanel(payload, result) {
   const calc   = result.calc;
   const tuning = result.tuning;
 
-  // แปลง flowSuggest กลับเป็น Scale แนะนำ
   const scaleSuggestTop = flowToScale(calc.flowSuggestTop, payload.machine, payload.sizingType, 'top');
   const scaleSuggestBot = flowToScale(calc.flowSuggestBot, payload.machine, payload.sizingType, 'bot');
 
@@ -808,7 +763,6 @@ function openAIPanel(payload, result) {
   const topBoxClass = topNoChange ? 'scale-suggest-box ok' : 'scale-suggest-box';
   const botBoxClass = botNoChange ? 'scale-suggest-box ok' : 'scale-suggest-box';
 
-  // ป้าย adj mode
   function adjLabel(adj) {
     if (!adj || adj.adjMode === 'no_change') return '<span style="color:#059669;font-size:11px;">✅ ไม่ปรับ</span>';
     const dir  = adj.direction > 0 ? '↑' : '↓';
@@ -857,7 +811,6 @@ function openAIPanel(payload, result) {
     <button class="btn-delete-entry" onclick="openHistoryPanel('${payload.machine}','${payload.sizingType}')">🗑️ ดู/ลบรายการล่าสุด (คีย์ Scale ผิด)</button>`;
 }
 
-// ── ดู/ลบ 5 รายการล่าสุด ──────────────────────────────────────
 async function openHistoryPanel(machine, sizingType) {
   machine    = machine    || currentMachine;
   sizingType = sizingType || currentType;
@@ -926,7 +879,7 @@ async function deleteEntry(machine, sizingType, timestamp, btnEl) {
     const result = await resp.json();
 
     if (result && result.success) {
-      openHistoryPanel(machine, sizingType); // โหลดรายการใหม่ (เหลือ 4 + อาจมีรายการเก่ากว่าเลื่อนเข้ามาแทน)
+      openHistoryPanel(machine, sizingType);
     } else {
       alert('❌ ลบไม่สำเร็จ: ' + ((result && result.error) || 'ไม่ทราบสาเหตุ'));
       if (btnEl) btnEl.disabled = false;
@@ -937,12 +890,10 @@ async function deleteEntry(machine, sizingType, timestamp, btnEl) {
   }
 }
 
-// ── Fallback ───────────────────────────────────────────────────
 function openAIPanelFallback(payload) {
   document.getElementById('aiBackdrop').classList.add('show');
   document.getElementById('aiPanel').classList.add('show');
 
-  // ใช้ prevFlowStd จาก localStorage เป็น Base ถ้ามี ไม่งั้นใช้ Flow ปัจจุบัน
   const prev = loadPrevFlowStd(payload.machine, payload.sizingType);
   const baseTop = prev.top > 0 ? prev.top : payload.flowTop;
   const baseBot = prev.bot > 0 ? prev.bot : payload.flowBot;
@@ -1011,7 +962,6 @@ function hideLoading() {
   document.getElementById('loadingOverlay').classList.remove('show');
 }
 
-// ── DOM Ready ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
   var btn = document.getElementById('submitBtn');
   var touched = false;
@@ -1029,7 +979,6 @@ document.addEventListener('DOMContentLoaded', function() {
   initLiff();
 });
 
-// ── LIFF ───────────────────────────────────────────────────────
 async function initLiff() {
   const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('LIFF timeout')), 5000));
   try {
