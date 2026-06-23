@@ -709,7 +709,11 @@ async function handleSubmit() {
     document.getElementById('submitBtn').classList.remove('disabled');
   } catch(e) {
     hideLoading();
+    console.error('GAS fetch failed:', e);
     openAIPanelFallback(payload);
+    // เพิ่ม debug message ให้เห็น error จริง
+    const fb = document.querySelector('.ai-bubble.warn');
+    if (fb) fb.innerHTML += '<br><br><span style="font-size:10px;opacity:0.7;">Debug: ' + (e.message || e) + '</span>';
     document.getElementById('submitBtn').classList.remove('disabled');
   }
 }
