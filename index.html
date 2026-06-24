@@ -149,6 +149,7 @@
   .line-share-banner.sent    { background: #ECFDF5; border: 1px solid #A7F3D0; color: #065F46; }
   .line-share-banner.skipped { background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E; }
   .line-share-banner.failed  { background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; }
+  .line-share-banner.sending { background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; }
   .btn-resend-line { margin-left: auto; flex-shrink: 0; background: rgba(255,255,255,0.6); border: 1px solid currentColor; border-radius: 8px; padding: 4px 10px; font-size: 11px; font-weight: 600; cursor: pointer; color: inherit; }
 </style>
 </head>
@@ -297,7 +298,7 @@
 
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
-const GAS_URL           = 'https://script.google.com/macros/s/AKfycbyjZFt1rFSzLx7zJnDbPzo4KlVFoji29uSJOgiChul0t-nq6GMnKjPAPV9KsgN8rS7hVw/exec';
+const GAS_URL           = 'https://script.google.com/macros/s/AKfycbyNbVWeoNQaChGf5VUmqV2G23vfxx5gKxH28R9hlQ962yY7SJnCXxNFL2B_Vu5c8g_14w/exec';
 const SG                = 1.08;
 const COBB_TARGET_TOP   = 52;
 const COBB_TARGET_BOT   = 107;
@@ -704,7 +705,7 @@ async function handleSubmit() {
       // ส่งเข้ากลุ่ม LINE ผ่าน liff.sendMessages() — ไม่ใช่ push API
       // วิธีนี้ "ฟรีตลอด" ไม่มีโควต้ารายเดือน เพราะถือเป็นการส่งในนามผู้ใช้เอง
       // ผ่าน LIFF แต่ผู้ใช้จะเห็น popup ยืนยันก่อนส่งทุกครั้ง (เป็นข้อจำกัดของ LIFF API เอง)
-      sendSummaryToLine(result.flexMessage);
+      sendSummaryToLine(lastFlexMessage);
     }
     document.getElementById('submitBtn').classList.remove('disabled');
   } catch(e) {
@@ -723,10 +724,16 @@ async function handleSubmit() {
 // ข้อจำกัด: ใช้ได้เฉพาะตอนเปิดผ่าน LIFF ที่อยู่ใน context ของแชท/กลุ่มนั้นจริงๆ
 // (ใช้ไม่ได้ถ้าเปิดจากเบราว์เซอร์ทั่วไปที่ไม่ผ่าน LINE) และ LINE จะเด้ง popup
 // ให้ผู้ใช้กดยืนยันก่อนส่งเสมอ — เป็นพฤติกรรมของ LIFF API เอง ไม่ใช่ bug
+//
+// แก้บัค: เดิมถ้า flexMessage เป็น null/undefined ฟังก์ชันนี้จะ return เงียบๆ
+// โดยไม่อัปเดต banner เลย ทำให้ข้อความ "กำลังส่งเข้าแชท LINE..." ที่ตั้งไว้ก่อนหน้า
+// (ใน openAIPanel) ค้างอยู่ตลอดไป — ตอนนี้ทุก early-return จะ render banner
+// ที่บอกสถานะจริงเสมอ
 async function sendSummaryToLine(flexMessage) {
-  if (!flexMessage) return;
-
-  const banner = document.getElementById('lineShareBanner');
+  if (!flexMessage) {
+    renderLineShareBanner('skipped', 'ℹ️ ไม่มีข้อความให้ส่ง (เซิร์ฟเวอร์ไม่ได้ส่ง flexMessage กลับมา) — บันทึกข้อมูลเรียบร้อยแล้ว แต่ยังไม่ได้ส่งเข้าแชท');
+    return;
+  }
 
   try {
     if (typeof liff === 'undefined' || !liff.isLoggedIn || !liff.isLoggedIn()) {
@@ -762,13 +769,14 @@ function renderLineShareBanner(state, msg) {
     aiContent.prepend(banner);
   }
   banner.className = 'line-share-banner ' + state;
-  const showRetry = state === 'failed' || state === 'skipped';
+  const showRetry = (state === 'failed' || state === 'skipped') && !!lastFlexMessage;
   banner.innerHTML = '<span>' + msg + '</span>' +
     (showRetry ? '<button class="btn-resend-line" onclick="retryResendLine()">ลองส่งใหม่</button>' : '');
 }
 
 function retryResendLine() {
   if (!lastFlexMessage) return;
+  renderLineShareBanner('sending', '📤 กำลังส่งเข้าแชท LINE...');
   sendSummaryToLine(lastFlexMessage);
 }
 
@@ -843,8 +851,8 @@ function openAIPanel(payload, result) {
 
     <button class="btn-delete-entry" onclick="openHistoryPanel('${payload.machine}','${payload.sizingType}')">🗑️ ดู/ลบรายการล่าสุด (คีย์ Scale ผิด)</button>`;
 
-  // แสดง banner สถานะการส่ง LINE ทันที (เริ่มที่ "กำลังส่ง..." แล้ว sendSummaryToLine จะอัปเดตทับ)
-  renderLineShareBanner('skipped', '📤 กำลังส่งเข้าแชท LINE...');
+  // แสดง banner สถานะการส่ง LINE ทันที (เริ่มที่ "กำลังส่ง..." แล้ว sendSummaryToLine จะอัปเดตทับด้วยสถานะจริง)
+  renderLineShareBanner('sending', '📤 กำลังส่งเข้าแชท LINE...');
 }
 
 async function openHistoryPanel(machine, sizingType) {
