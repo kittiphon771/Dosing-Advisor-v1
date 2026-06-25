@@ -298,7 +298,7 @@
 
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
-const GAS_URL           = 'https://script.google.com/macros/s/AKfycbw2etQ2ig9RUkMdasjALxoWVvlci0SRcufF6QpBxLrZR68wqYif5WoxrH5pfXyp-5Tnrg/exec';
+const GAS_URL           = 'https://script.google.com/macros/s/AKfycbyX--dwfmvAUDTXcF3bcVQPpUFgYDY_PX2gxdiHIG27V7LF7rv7KxdPacK3upeqeZXELg/exec';
 const SG                = 1.08;
 const COBB_TARGET_TOP   = 52;
 const COBB_TARGET_BOT   = 107;
@@ -938,12 +938,8 @@ function openAIPanelFallback(payload) {
   document.getElementById('aiBackdrop').classList.add('show');
   document.getElementById('aiPanel').classList.add('show');
 
-  const prev = loadPrevFlowStd(payload.machine, payload.sizingType);
-  const baseTop = prev.top > 0 ? prev.top : payload.flowTop;
-  const baseBot = prev.bot > 0 ? prev.bot : payload.flowBot;
-
-  const resTop = calcCobbFlowSuggest(baseTop, payload.cobbTop, COBB_TARGET_TOP, 'top');
-  const resBot = calcCobbFlowSuggest(baseBot, payload.cobbBot, COBB_TARGET_BOT, 'bot');
+const resTop = calcCobbFlowSuggest(payload.flowTop, payload.cobbTop, COBB_TARGET_TOP, 'top');
+const resBot = calcCobbFlowSuggest(payload.flowBot, payload.cobbBot, COBB_TARGET_BOT, 'bot');
 
   const flowSuggestTop = resTop.flowSuggest;
   const flowSuggestBot = resBot.flowSuggest;
