@@ -446,9 +446,22 @@ function setMachine(m) {
   document.getElementById('speed').value = '';
   document.getElementById('gsm').value   = '';
   document.getElementById('width').value = '';
-  document.getElementById('saveConfigStatus').textContent = '';
+  const saveStatusEl = document.getElementById('saveConfigStatus');
+  if (saveStatusEl) saveStatusEl.textContent = '';
   loadMachineConfigFromServer(m);
   onScaleInput();
+}
+
+// อ่านค่า PM2/PM3 ที่เคยเลือกไว้ล่าสุดจาก localStorage แล้วตั้งเป็นค่าเริ่มต้นตอนเปิดหน้า
+// (เดิมฟังก์ชันนี้ถูกเรียกใช้ใน DOMContentLoaded แต่ไม่ได้ถูกประกาศไว้จริง
+// ทำให้เกิด ReferenceError และโค้ดที่ตามมาทั้งหมด เช่น initLiff() ไม่ถูกรันเลย)
+function loadSavedMachineSelection() {
+  let m = 'PM2';
+  try {
+    const s = localStorage.getItem(STORAGE_MACHINE_KEY);
+    if (s === 'PM2' || s === 'PM3') m = s;
+  } catch (e) {}
+  setMachine(m);
 }
 
 function setSizingType(type) {
@@ -695,7 +708,10 @@ async function handleSubmit() {
   const flowTop = scaleToFlow(scaleTop, currentMachine, currentType, 'top');
   const flowBot = scaleToFlow(scaleBot, currentMachine, currentType, 'bot');
 
-  saveMachineParams(speed, gsm, width);
+  // หมายเหตุ: ไม่ต้องเซฟ speed/gsm/width ที่นี่แล้ว เพราะค่าเครื่องจักรถูกเก็บไว้บน
+  // server ผ่าน saveMachineConfigToServer() อยู่แล้ว (เดิมมีการเรียก saveMachineParams()
+  // ตรงนี้ แต่ฟังก์ชันนั้นไม่มีอยู่จริง ทำให้กดปุ่ม "วิเคราะห์และบันทึก" แล้ว throw
+  // ReferenceError ทันที ส่งข้อมูลไป backend ไม่สำเร็จ — จึงลบบรรทัดนี้ออก)
 
   const std = STD[currentType];
 
