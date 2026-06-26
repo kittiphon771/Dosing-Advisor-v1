@@ -298,7 +298,7 @@
 
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
-const GAS_URL           = 'https://script.google.com/macros/s/AKfycbzCrYDIMehdSDvCni3JHOYGBocm7KdRHILlhlEJZl2mDy4Jd8ESs8Fj70NhE-hMhVWcVQ/exec';
+const GAS_URL           = 'https://script.google.com/macros/s/AKfycbzVeWsXzPRL7HBbfgRPaV8Qlfpu7kuThe4_3C78ZMqCkyP5NRCUCiGumGicNGGIpvW9qQ/exec';
 const SG                = 1.08;
 const COBB_TARGET_TOP   = 52;
 const COBB_TARGET_BOT   = 107;
@@ -442,22 +442,13 @@ function setMachine(m) {
   try { localStorage.setItem(STORAGE_MACHINE_KEY, m); } catch(e) {}
   document.getElementById('btnPM2').className = 'machine-btn' + (m === 'PM2' ? ' active' : '');
   document.getElementById('btnPM3').className = 'machine-btn' + (m === 'PM3' ? ' active' : '');
-  loadSavedMachine(m);
+  // รีเซ็ต field ก่อน แล้วโหลดค่าของ machine นั้นจาก server
+  document.getElementById('speed').value = '';
+  document.getElementById('gsm').value   = '';
+  document.getElementById('width').value = '';
+  document.getElementById('saveConfigStatus').textContent = '';
+  loadMachineConfigFromServer(m);
   onScaleInput();
-}
-
-function loadSavedMachineSelection() {
-  try {
-    const saved = localStorage.getItem(STORAGE_MACHINE_KEY);
-    const m = saved === 'PM3' ? 'PM3' : 'PM2';
-    currentMachine = m;
-    document.getElementById('btnPM2').className = 'machine-btn' + (m === 'PM2' ? ' active' : '');
-    document.getElementById('btnPM3').className = 'machine-btn' + (m === 'PM3' ? ' active' : '');
-  } catch(e) {
-    currentMachine = 'PM2';
-    document.getElementById('btnPM2').className = 'machine-btn active';
-    document.getElementById('btnPM3').className = 'machine-btn';
-  }
 }
 
 function setSizingType(type) {
@@ -505,64 +496,100 @@ function onScaleInput() {
 
   updatePreview();
 }
+// ── Shared Machine Config (โหลด/บันทึกผ่าน GAS Sheet) ──────────────────
 
-function updateMachineSummary() {
-  const speed = document.getElementById('speed').value || '—';
-  const gsm   = document.getElementById('gsm').value || '—';
-  const width = document.getElementById('width').value || '—';
-  document.getElementById('machineSummaryText').textContent =
-    '⚙️ ' + currentMachine + ': speed ' + speed + ' · gsm ' + gsm + ' · width ' + width;
-}
-
-function loadSavedMachine(m) {
-  m = m || currentMachine;
-  document.getElementById('speed').value = '';
-  document.getElementById('gsm').value   = '';
-  document.getElementById('width').value = '';
-  machineIsLocked = false;
-  ['speed','gsm','width'].forEach(function(id) {
-    document.getElementById(id).classList.remove('locked');
-  });
-  document.getElementById('machineBody').style.display = '';
-  document.getElementById('machineSummaryRow').style.display = 'none';
+async function loadMachineConfigFromServer(machine) {
+  machine = machine || currentMachine;
+  const label = document.getElementById('machineConfigLabel');
+  const info  = document.getElementById('configLastUpdated');
+  if (label) label.textContent = '(' + machine + ')';
+  if (info)  info.textContent  = 'กำลังโหลด...';
 
   try {
-    const saved = localStorage.getItem(machineStorageKey(m));
-    if (!saved) { updatePreview(); return; }
-    const { speed, gsm, width } = JSON.parse(saved);
-    if (!speed || !gsm || !width) { updatePreview(); return; }
-    document.getElementById('speed').value = speed;
-    document.getElementById('gsm').value   = gsm;
-    document.getElementById('width').value = width;
-    lockMachine();
-  } catch(e) {}
-  updatePreview();
+    const qs   = '?action=getMachineConfig&machine=' + encodeURIComponent(machine);
+    const resp = await fetch(GAS_URL + qs, { method: 'GET' });
+    const cfg  = await resp.json();
+
+    if (cfg.error) {
+      if (info) info.textContent = '⚠️ โหลดค่าไม่ได้';
+      return;
+    }
+
+    // ใส่ค่าลง field (ถ้ามีค่าจาก server)
+    if (cfg.speed != null) document.getElementById('speed').value = cfg.speed;
+    if (cfg.gsm   != null) document.getElementById('gsm').value   = cfg.gsm;
+    if (cfg.width != null) document.getElementById('width').value = cfg.width;
+
+    if (cfg.lastUpdated && cfg.lastUpdatedName) {
+      const d = new Date(cfg.lastUpdated);
+      const ts = isNaN(d.getTime()) ? cfg.lastUpdated
+               : d.toLocaleString('th-TH', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+      if (info) info.textContent = '📝 แก้ล่าสุดโดย ' + cfg.lastUpdatedName + ' · ' + ts;
+    } else {
+      if (info) info.textContent = 'ยังไม่มีค่าที่บันทึกไว้';
+    }
+
+    updatePreview();
+  } catch (e) {
+    if (info) info.textContent = '⚠️ เชื่อมต่อไม่ได้';
+  }
 }
 
-function lockMachine() {
-  machineIsLocked = true;
-  ['speed','gsm','width'].forEach(function(id) {
-    document.getElementById(id).classList.add('locked');
-  });
-  updateMachineSummary();
-  document.getElementById('machineBody').style.display = 'none';
-  document.getElementById('machineSummaryRow').style.display = 'flex';
-  updatePreview();
+async function saveMachineConfigToServer() {
+  const speed = parseFloat(document.getElementById('speed').value);
+  const gsm   = parseFloat(document.getElementById('gsm').value);
+  const width = parseFloat(document.getElementById('width').value);
+
+  const status = document.getElementById('saveConfigStatus');
+  const btn    = document.getElementById('btnSaveMachineConfig');
+
+  // Validate
+  const errs = [];
+  if (isNaN(speed) || speed <= 0)  errs.push('Speed');
+  if (isNaN(gsm)   || gsm   <= 0)  errs.push('GSM');
+  if (isNaN(width) || width  <= 0.1) errs.push('Width');
+  if (errs.length) {
+    if (status) status.textContent = '❌ กรุณากรอก: ' + errs.join(', ');
+    return;
+  }
+
+  if (btn) btn.disabled = true;
+  if (status) status.textContent = '💾 กำลังบันทึก...';
+
+  try {
+    const qs = '?action=setMachineConfig'
+      + '&machine='     + encodeURIComponent(currentMachine)
+      + '&speed='       + encodeURIComponent(speed)
+      + '&gsm='         + encodeURIComponent(gsm)
+      + '&width='       + encodeURIComponent(width)
+      + '&userId='      + encodeURIComponent(liffUserId || '')
+      + '&displayName=' + encodeURIComponent(liffDisplayName || 'Unknown');
+
+    const resp   = await fetch(GAS_URL + qs, { method: 'GET' });
+    const result = await resp.json();
+
+    if (result.success) {
+      if (status) status.textContent = '✅ บันทึกแล้ว — ทุกคนจะเห็นค่านี้ตอนเปิดแอปครั้งถัดไป';
+      // อัปเดต label "แก้ล่าสุดโดย"
+      const info = document.getElementById('configLastUpdated');
+      if (info) {
+        const d  = new Date(result.lastUpdated);
+        const ts = isNaN(d.getTime()) ? result.lastUpdated
+                 : d.toLocaleString('th-TH', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+        info.textContent = '📝 แก้ล่าสุดโดย ' + (result.lastUpdatedName || 'Unknown') + ' · ' + ts;
+      }
+    } else {
+      if (status) status.textContent = '❌ บันทึกไม่สำเร็จ: ' + (result.error || 'ไม่ทราบสาเหตุ');
+    }
+  } catch (e) {
+    if (status) status.textContent = '❌ เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง';
+  } finally {
+    if (btn) btn.disabled = false;
+  }
 }
 
-function unlockMachine() {
-  machineIsLocked = false;
-  ['speed','gsm','width'].forEach(function(id) {
-    document.getElementById(id).classList.remove('locked');
-  });
-  document.getElementById('machineSummaryRow').style.display = 'none';
-  document.getElementById('machineBody').style.display = '';
-  document.getElementById('speed').focus();
-}
 
-function saveMachineParams(speed, gsm, width) {
-  try { localStorage.setItem(machineStorageKey(currentMachine), JSON.stringify({ speed, gsm, width })); } catch(e) {}
-}
+
 
 function calcKgTon(flow, speed, width, gsm) {
   if (!flow || !speed || !width || !gsm) return null;
@@ -1013,8 +1040,8 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   loadSavedType();
-  loadSavedMachineSelection();
-  loadSavedMachine(currentMachine);
+  loadSavedMachineSelection();   // ยังใช้ — แค่อ่าน localStorage ว่าเลือก PM2/PM3 ไว้
+  loadMachineConfigFromServer(currentMachine);  // โหลดค่าจาก Sheet แทน loadSavedMachine()
   loadPumpCurves();
   initLiff();
 });
